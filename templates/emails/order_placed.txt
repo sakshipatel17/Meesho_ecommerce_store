@@ -1,0 +1,48 @@
+Hi {{ customer_name }},
+
+Thank you for your order! We've received and confirmed your order. Your items will be dispatched soon.
+
+===========================================
+ORDER DETAILS
+===========================================
+Order ID: #{{ order_id }}
+Tracking ID: {{ tracking_id }}
+Order Date: {{ order.created_at|date:"d M, Y" }}
+Total Amount: ₹{{ order.total_amount }}
+
+===========================================
+DELIVERY ADDRESS
+===========================================
+{{ order.name }}
+{{ order.address }}
+{{ order.city }}, {{ order.state }} {{ order.pincode }}
+Mobile: {{ order.phone }}
+
+===========================================
+ORDER TIMELINE
+===========================================
+1. Order Placed - {{ order.created_at|date:"d M, Y" }}
+2. Processing - Expected within 24 hours
+3. Dispatched - You'll receive an update
+4. Out for Delivery - Real-time notification
+5. Delivered - Confirmation email
+
+===========================================
+PAYMENT INFORMATION
+===========================================
+Payment Method: {{ payment_method }}
+Amount: ₹{{ order.total_amount }}
+Status: Payment Confirmed
+
+We're excited to send you this order. Your items will be packed carefully and dispatched soon.
+
+If you have any questions or need to modify your order within the next 30 minutes, please contact our support team immediately.
+
+Thank you for shopping with us!
+
+Best regards,
+Your E-Commerce Store Team
+
+---
+Need help? Contact us at support@example.com
+© 2024 Your E-Commerce Store

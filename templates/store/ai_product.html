@@ -1,0 +1,510 @@
+{% extends 'layout/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-6">
+            <!-- Product Images -->
+            <div class="product-image-container">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" class="img-fluid main-product-image" alt="{{ product.name }}" data-product-id="{{ product.id }}">
+                {% else %}
+                    <img src="{% static 'images/default-product.jpg' %}" class="img-fluid main-product-image" alt="{{ product.name }}" data-product-id="{{ product.id }}">
+                {% endif %}
+                
+                <!-- Additional Images -->
+                {% if product.productimage_set.all %}
+                    <div class="additional-images mt-3">
+                        {% for img in product.productimage_set.all %}
+                            <img src="{{ img.image.url }}" class="thumb-image" alt="{{ product.name }}" onclick="changeMainImage('{{ img.image.url }}')">
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Virtual Try-On Section -->
+            {% if user.is_authenticated %}
+            <div class="virtual-tryon-section mt-4">
+                <h4>✨ Virtual Try-On</h4>
+                <div class="tryon-upload-area">
+                    <div class="upload-icon">
+                        <i class="fas fa-camera fa-2x mb-2"></i>
+                    </div>
+                    <h6>Try This Product On</h6>
+                    <p>Upload your photo to see how it looks!</p>
+                </div>
+                <div class="tryon-result" style="display: none;"></div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-6">
+            <!-- Product Details -->
+            <div class="product-details">
+                <h1>{{ product.name }}</h1>
+                
+                <!-- Seller Trust Badge -->
+                <div class="seller-trust-section mb-3" data-seller-id="{{ product.category.id }}"></div>
+                
+                <div class="price-section">
+                    <h2 class="price">₹{{ product.price }}</h2>
+                    {% if product.in_stock > 0 %}
+                        <span class="badge bg-success">In Stock ({{ product.in_stock }})</span>
+                    {% else %}
+                        <span class="badge bg-danger">Out of Stock</span>
+                    {% endif %}
+                </div>
+
+                <div class="product-description">
+                    <h5>Description</h5>
+                    <p>{{ product.description }}</p>
+                </div>
+
+                <div class="product-meta">
+                    <p><strong>Category:</strong> {{ product.category.name }}</p>
+                    <p><strong>Weight:</strong> {{ product.weight }}g</p>
+                    <p><strong>Length:</strong> {{ product.length }}cm</p>
+                </div>
+
+                <!-- AI Recommendations -->
+                <div class="ai-recommendations-inline mt-4">
+                    <h5>🤖 You might also like</h5>
+                    <div class="similar-products-inline"></div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons mt-4">
+                    {% if user.is_authenticated %}
+                        {% if product.in_stock > 0 %}
+                            <a href="{% url 'add_to_cart' product.id %}" class="btn btn-primary btn-lg me-3">
+                                <i class="fas fa-shopping-cart"></i> Add to Cart
+                            </a>
+                            <button class="btn btn-outline-danger btn-lg me-3" onclick="addToWishlist('{{ product.id }}')">
+                                <i class="fas fa-heart"></i> Wishlist
+                            </button>
+                        {% endif %}
+                        
+                        <button class="btn btn-outline-success btn-lg" onclick="buyNow('{{ product.id }}')">
+                            <i class="fas fa-bolt"></i> Buy Now
+                        </button>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-sign-in-alt"></i> Login to Buy
+                        </a>
+                    {% endif %}
+                </div>
+
+                <!-- Smart Offers -->
+                <div class="smart-offers-product mt-4" style="display: none;">
+                    <div class="alert alert-success">
+                        <h5>🎁 Special Offer for You!</h5>
+                        <div id="productOfferContent"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Insights Section -->
+    <div class="ai-insights-section mt-5">
+        <h3>🤖 AI Insights</h3>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="insight-card">
+                    <h6>🔥 Trending Score</h6>
+                    <div class="trending-meter">
+                        <div class="meter-fill" style="width: 75%;"></div>
+                    </div>
+                    <p class="text-muted small">This product is trending high!</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="insight-card">
+                    <h6>⭐ Predicted Rating</h6>
+                    <div class="predicted-rating">
+                        <span class="rating-score">4.5</span>/5.0
+                    </div>
+                    <p class="text-muted small">Based on AI analysis</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="insight-card">
+                    <h6>👥 Popular With</h6>
+                    <div class="demographic-tags">
+                        <span class="badge bg-primary me-1">Age 25-35</span>
+                        <span class="badge bg-secondary me-1">Urban</span>
+                        <span class="badge bg-info">Fashion</span>
+                    </div>
+                    <p class="text-muted small">Customer segments</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reviews Section with AI Analysis -->
+    <div class="reviews-section mt-5">
+        <h3>Customer Reviews</h3>
+        
+        <!-- AI Review Summary -->
+        <div class="ai-review-summary mb-4">
+            <div class="alert alert-info">
+                <h5>🤖 AI Review Analysis</h5>
+                <p id="aiReviewSummary">Analyzing customer sentiment...</p>
+                <div class="sentiment-breakdown">
+                    <div class="sentiment-bar">
+                        <div class="positive" style="width: 70%;">70% Positive</div>
+                        <div class="neutral" style="width: 20%;">20% Neutral</div>
+                        <div class="negative" style="width: 10%;">10% Negative</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Existing Reviews -->
+        <div class="reviews-list">
+            {% for review in reviews %}
+            <div class="review-card mb-3">
+                <div class="d-flex justify-content-between">
+                    <h6>{{ review.user.email }}</h6>
+                    <div class="rating">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= review.rating %}
+                                <i class="fas fa-star text-warning"></i>
+                            {% else %}
+                                <i class="far fa-star text-warning"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                <p class="review-text">{{ review.comment }}</p>
+                <small class="text-muted">{{ review.created_at|date:"M d, Y" }}</small>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Add Review -->
+        {% if user.is_authenticated %}
+        <div class="add-review mt-4">
+            <h5>Add Your Review</h5>
+            <form id="reviewForm">
+                <div class="mb-3">
+                    <label for="rating" class="form-label">Rating</label>
+                    <select class="form-select" id="rating" name="rating">
+                        <option value="5">5 Stars - Excellent</option>
+                        <option value="4">4 Stars - Very Good</option>
+                        <option value="3">3 Stars - Good</option>
+                        <option value="2">2 Stars - Fair</option>
+                        <option value="1">1 Star - Poor</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="reviewText" class="form-label">Your Review</label>
+                    <textarea class="form-control" id="reviewText" name="reviewText" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit Review</button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+/* Product-specific AI styles */
+.product-image-container {
+    position: relative;
+}
+
+.main-product-image {
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.additional-images {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+}
+
+.thumb-image {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.thumb-image:hover {
+    transform: scale(1.1);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.price-section {
+    margin: 20px 0;
+}
+
+.price {
+    color: #27ae60;
+    font-weight: 700;
+}
+
+.ai-recommendations-inline {
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 20px;
+}
+
+.similar-products-inline {
+    display: flex;
+    gap: 15px;
+    overflow-x: auto;
+    margin-top: 15px;
+}
+
+.similar-product-card {
+    min-width: 150px;
+    background: white;
+    border-radius: 10px;
+    padding: 10px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.ai-insights-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 20px;
+    padding: 30px;
+    color: white;
+}
+
+.insight-card {
+    background: rgba(255,255,255,0.1);
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+}
+
+.trending-meter {
+    background: rgba(255,255,255,0.2);
+    height: 10px;
+    border-radius: 5px;
+    overflow: hidden;
+    margin: 10px 0;
+}
+
+.meter-fill {
+    background: linear-gradient(45deg, #27ae60, #2ecc71);
+    height: 100%;
+    transition: width 1s ease;
+}
+
+.predicted-rating {
+    font-size: 24px;
+    font-weight: 700;
+    color: #ffeb3b;
+    margin: 10px 0;
+}
+
+.sentiment-bar {
+    display: flex;
+    height: 20px;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 10px 0;
+}
+
+.positive {
+    background: #27ae60;
+}
+
+.neutral {
+    background: #f39c12;
+}
+
+.negative {
+    background: #e74c3c;
+}
+
+.review-card {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.virtual-tryon-section {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    border-radius: 15px;
+    padding: 20px;
+    color: white;
+    text-align: center;
+}
+
+.tryon-upload-area {
+    background: rgba(255,255,255,0.2);
+    border: 2px dashed rgba(255,255,255,0.5);
+    border-radius: 10px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tryon-upload-area:hover {
+    background: rgba(255,255,255,0.3);
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Load similar products
+    loadSimilarProductsInline();
+    
+    // Check for offers
+    checkProductOffers();
+    
+    // Track product view
+    if (typeof aiAssistant !== 'undefined') {
+        aiAssistant.trackBehavior('{{ product.id }}', 'view');
+    }
+    
+    // Setup review form
+    setupReviewForm();
+    
+    // Load AI review analysis
+    loadAIReviewAnalysis();
+});
+
+function changeMainImage(imageUrl) {
+    const mainImage = document.querySelector('.main-product-image');
+    mainImage.src = imageUrl;
+}
+
+async function loadSimilarProductsInline() {
+    try {
+        const response = await fetch(`/api/ai/similar/{{ product.id }}/`);
+        const data = await response.json();
+        
+        if (data.success) {
+            const container = document.querySelector('.similar-products-inline');
+            container.innerHTML = data.similar_products.map(product => `
+                <div class="similar-product-card">
+                    <img src="${product.image || '/static/images/default-product.jpg'}" alt="${product.name}" style="width: 100%; height: 100px; object-fit: cover; border-radius: 10px;">
+                    <h6 class="mt-2">${product.name.length > 20 ? product.name.substring(0, 20) + '...' : product.name}</h6>
+                    <div class="price">₹${product.price}</div>
+                    <a href="/product/${product.slug}/" class="btn btn-sm btn-primary mt-2">View</a>
+                </div>
+            `).join('');
+        }
+    } catch (error) {
+        console.error('Error loading similar products:', error);
+    }
+}
+
+async function checkProductOffers() {
+    try {
+        const response = await fetch('/api/ai/offers/');
+        const data = await response.json();
+        
+        if (data.success && data.offers.length > 0) {
+            const relevantOffer = data.offers.find(offer => 
+                !offer.product || offer.product.id === '{{ product.id }}'
+            );
+            
+            if (relevantOffer) {
+                const offerContainer = document.querySelector('.smart-offers-product');
+                const offerContent = document.getElementById('productOfferContent');
+                
+                offerContent.innerHTML = `
+                    <div class="offer-discount">${relevantOffer.discount}% OFF</div>
+                    <p>${relevantOffer.trigger_reason}</p>
+                    <div class="offer-timer">
+                        Expires in: ${getTimeRemaining(relevantOffer.expires_at)}
+                    </div>
+                    <button class="btn btn-success mt-2" onclick="applyOffer('${relevantOffer.id}')">
+                        Apply This Offer
+                    </button>
+                `;
+                
+                offerContainer.style.display = 'block';
+            }
+        }
+    } catch (error) {
+        console.error('Error checking offers:', error);
+    }
+}
+
+function getTimeRemaining(expiresAt) {
+    const now = new Date();
+    const expiry = new Date(expiresAt);
+    const diff = expiry - now;
+    
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    
+    return `${hours}h ${minutes}m`;
+}
+
+function buyNow(productId) {
+    // Track buy now click
+    if (typeof aiAssistant !== 'undefined') {
+        aiAssistant.trackBehavior(productId, 'buy_now_click');
+    }
+    
+    // Redirect to checkout
+    window.location.href = `/buy-now/${productId}/`;
+}
+
+function setupReviewForm() {
+    const form = document.getElementById('reviewForm');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(form);
+            formData.append('product_id', '{{ product.id }}');
+            
+            // Submit review (implementation depends on your backend)
+            console.log('Submitting review:', formData);
+            
+            // Show success message
+            if (typeof aiAssistant !== 'undefined') {
+                aiAssistant.showNotification('Review submitted successfully!', 'success');
+            }
+            
+            form.reset();
+        });
+    }
+}
+
+function loadAIReviewAnalysis() {
+    // Simulate AI review analysis
+    setTimeout(() => {
+        const summaryElement = document.getElementById('aiReviewSummary');
+        summaryElement.textContent = 'Customers love this product! Most reviews mention excellent quality and great value for money. Some users suggest improvements in packaging.';
+    }, 2000);
+}
+
+// Virtual try-on functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const tryonUpload = document.querySelector('.tryon-upload-area');
+    if (tryonUpload) {
+        tryonUpload.addEventListener('click', function() {
+            if (typeof aiAssistant !== 'undefined') {
+                // Trigger try-on for current product
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                input.onchange = (e) => {
+                    if (typeof aiAssistant.handleTryOnFile === 'function') {
+                        aiAssistant.handleTryOnFile(e.target.files[0]);
+                    }
+                };
+                input.click();
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

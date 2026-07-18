@@ -1,0 +1,197 @@
+<!-- FIRST ORDER DISCOUNT BANNER -->
+{% if is_first_order %}
+<div class="first-order-banner" style="
+    background: linear-gradient(135deg, #ff66c4 0%, #9333ea 100%);
+    color: white;
+    padding: 16px 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 16px;
+    box-shadow: 0 4px 12px rgba(255, 102, 196, 0.3);
+    animation: pulse 2s infinite;
+">
+    🎉 First order discount applied! You saved 10%
+</div>
+
+<style>
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+    100% { transform: scale(1); }
+}
+</style>
+{% endif %}
+
+<!-- COUPON SECTION -->
+<div class="coupon-section" style="
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #e5e7eb;
+    {% if is_first_order %}opacity: 0.6;{% endif %}
+">
+    <h4 style="margin-bottom: 12px; color: #333;">Coupon Code</h4>
+    
+    {% if is_first_order %}
+    <p style="color: #666; margin-bottom: 12px;">
+        <i class="fas fa-gift"></i> First order discount already applied! Other coupons cannot be used.
+    </p>
+    {% else %}
+    <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+        <input type="text" 
+               id="couponCode" 
+               placeholder="Enter coupon code" 
+               style="flex: 1; padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px;">
+        <button onclick="applyCoupon()" 
+                style="padding: 10px 20px; background: #ff66c4; color: white; border: none; border-radius: 6px; cursor: pointer;">
+            Apply
+        </button>
+    </div>
+    
+    <!-- Available Coupons -->
+    <div style="margin-top: 15px;">
+        <p style="font-size: 14px; color: #666; margin-bottom: 8px;">Available Coupons:</p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px;">
+            <div class="coupon-chip" style="
+                background: #f8f9fa;
+                padding: 6px 12px;
+                border-radius: 20px;
+                font-size: 12px;
+                color: #666;
+                border: 1px solid #e5e7eb;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            " onclick="applyCouponCode('SAVE10')">
+                SAVE10 - 10% off
+            </div>
+            <div class="coupon-chip" style="
+                background: #f8f9fa;
+                padding: 6px 12px;
+                border-radius: 20px;
+                font-size: 12px;
+                color: #666;
+                border: 1px solid #e5e7eb;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            " onclick="applyCouponCode('SAVE20')">
+                SAVE20 - 20% off
+            </div>
+            <div class="coupon-chip" style="
+                background: #f8f9fa;
+                padding: 6px 12px;
+                border-radius: 20px;
+                font-size: 12px;
+                color: #666;
+                border: 1px solid #e5e7eb;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            " onclick="applyCouponCode('FLAT50')">
+                FLAT50 - ₹50 off
+            </div>
+            <div class="coupon-chip" style="
+                background: #f8f9fa;
+                padding: 6px 12px;
+                border-radius: 20px;
+                font-size: 12px;
+                color: #666;
+                border: 1px solid #e5e7eb;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            " onclick="applyCouponCode('MEESHO15')">
+                MEESHO15 - 15% off
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Coupon Message -->
+    {% if coupon_message %}
+    <div id="couponMessage" style="
+        margin-top: 12px;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 14px;
+        {% if coupon_success %}
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        {% else %}
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        {% endif %}
+    ">
+        {{ coupon_message }}
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.coupon-chip:hover {
+    background: #ff66c4;
+    color: white;
+    transform: translateY(-1px);
+}
+</style>
+
+<script>
+function applyCoupon() {
+    const couponCode = document.getElementById('couponCode').value.trim();
+    if (!couponCode) {
+        alert('Please enter a coupon code');
+        return;
+    }
+    applyCouponCode(couponCode);
+}
+
+function applyCouponCode(code) {
+    document.getElementById('couponCode').value = code;
+    
+    fetch(window.location.href, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+        body: `coupon_code=${encodeURIComponent(code)}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update discount display
+            const discountElement = document.querySelector('.discount-amount');
+            if (discountElement) {
+                discountElement.textContent = `₹${data.discount_amount.toFixed(2)}`;
+            }
+            
+            // Update final total
+            const totalElement = document.querySelector('.final-total');
+            if (totalElement) {
+                totalElement.textContent = `₹${data.final_total.toFixed(2)}`;
+            }
+            
+            // Show success message
+            showMessage(data.message, true);
+        } else {
+            showMessage(data.message, false);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showMessage('Error applying coupon', false);
+    });
+}
+
+function showMessage(message, isSuccess) {
+    const messageDiv = document.getElementById('couponMessage');
+    if (messageDiv) {
+        messageDiv.textContent = message;
+        messageDiv.style.background = isSuccess ? '#d4edda' : '#f8d7da';
+        messageDiv.style.color = isSuccess ? '#155724' : '#721c24';
+        messageDiv.style.borderColor = isSuccess ? '#c3e6cb' : '#f5c6cb';
+    }
+}
+</script>

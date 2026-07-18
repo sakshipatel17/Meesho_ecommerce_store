@@ -1,0 +1,62 @@
+{% extends "emails/base_myntra.html" %}
+
+{% block email_content %}
+<div class="container">
+    <div class="header">
+        <h1>📍 Out for Delivery!</h1>
+        <p>Your package will arrive today</p>
+    </div>
+    
+    <div class="content">
+        <p>Hi {{ customer_name }},</p>
+        
+        <p>Exciting! Your order is out for delivery today. Our delivery partner will reach you within the estimated time window.</p>
+        
+        <!-- Tracking Section -->
+        <div class="tracking-section">
+            <p style="margin: 0 0 10px; font-size: 14px;">Tracking ID</p>
+            <div class="tracking-id">{{ tracking_id }}</div>
+        </div>
+        
+        <!-- Alert -->
+        <div class="alert alert-warning">
+            <strong>Please be available!</strong> Make sure you or someone at your delivery address is available to receive the package. Keep your phone handy for any updates from the delivery partner.
+        </div>
+        
+        <!-- Order Summary Box -->
+        <div class="order-info">
+            <div class="order-info-row">
+                <span class="order-info-label">Order ID:</span>
+                <span class="order-info-value">#{{ order_id }}</span>
+            </div>
+            <div class="order-info-row">
+                <span class="order-info-label">Expected Delivery:</span>
+                <span class="order-info-value">Today</span>
+            </div>
+            <div class="order-info-row">
+                <span class="order-info-label">Contact Mobile:</span>
+                <span class="order-info-value">{{ order.phone }}</span>
+            </div>
+        </div>
+        
+        <!-- Delivery Address -->
+        <h3 style="margin: 20px 0 15px; color: #333; font-size: 16px;">Delivery Location</h3>
+        <div class="address-box">
+            <h3>{{ order.name }}</h3>
+            <p>
+                {{ order.address }}<br>
+                {{ order.city }}, {{ order.state }} {{ order.pincode }}
+            </p>
+        </div>
+        
+        <!-- CTA Button -->
+        <a href="#" class="cta-button">Live Tracking</a>
+    </div>
+    
+    <div class="footer">
+        <p><strong>Having issues?</strong></p>
+        <p>Call our support team immediately if you can't receive the package.</p>
+        <p style="margin-top: 15px; border-top: 1px solid #333; padding-top: 15px;">© 2024 Your E-Commerce Store. All rights reserved.</p>
+    </div>
+</div>
+{% endblock %}

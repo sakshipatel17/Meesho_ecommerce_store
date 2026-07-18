@@ -1,0 +1,21 @@
+Hi {{ customer_name }},
+
+Great news! Your order has been successfully delivered. We hope you enjoy your new purchase!
+
+===========================================
+ORDER DELIVERED
+===========================================
+Order ID: #{{ order_id }}
+Tracking ID: {{ tracking_id }}
+Delivered Date: {{ order.delivered_date|date:"d M, Y" }}
+Total Amount: ₹{{ order.total_amount }}
+
+Thank you for shopping with us! If you have any questions or concerns about your order, please don't hesitate to reach out.
+
+We'd love to hear your feedback about your experience. Please rate this order and share your thoughts.
+
+Best regards,
+Your E-Commerce Store Team
+
+---
+© 2024 Your E-Commerce Store

@@ -1,0 +1,100 @@
+{% extends "emails/base_myntra.html" %}
+
+{% block email_content %}
+<div class="container">
+    <div class="header">
+        <h1>✅ Order Delivered!</h1>
+        <p>Thank you for your purchase</p>
+    </div>
+    
+    <div class="content">
+        <p>Hi {{ customer_name }},</p>
+        
+        <p>Your order has been successfully delivered! We hope you enjoy your new purchase. If you have any questions or concerns, please don't hesitate to reach out.</p>
+        
+        <!-- Success Alert -->
+        <div class="alert alert-success">
+            <strong>Delivery Complete!</strong> Your package was delivered on {{ order.delivered_date|date:"d M, Y" }}
+        </div>
+        
+        <!-- Tracking Section -->
+        <div class="tracking-section">
+            <p style="margin: 0 0 10px; font-size: 14px;">Order Completed</p>
+            <div class="tracking-id">{{ tracking_id }}</div>
+        </div>
+        
+        <!-- Timeline - All Complete -->
+        <h3 style="margin: 25px 0 15px; color: #333; font-size: 16px;">Order Journey</h3>
+        <div class="timeline">
+            <div class="timeline-step completed">
+                <div class="timeline-dot">✓</div>
+                <div class="timeline-content">
+                    <div class="timeline-label">Order Placed</div>
+                    <div class="timeline-date">{{ order.created_at|date:"d M, Y" }}</div>
+                </div>
+            </div>
+            <div class="timeline-step completed">
+                <div class="timeline-dot">✓</div>
+                <div class="timeline-content">
+                    <div class="timeline-label">Processing</div>
+                    <div class="timeline-date">Completed</div>
+                </div>
+            </div>
+            <div class="timeline-step completed">
+                <div class="timeline-dot">✓</div>
+                <div class="timeline-content">
+                    <div class="timeline-label">Dispatched</div>
+                    <div class="timeline-date">{{ order.shipped_date|date:"d M, Y" }}</div>
+                </div>
+            </div>
+            <div class="timeline-step completed">
+                <div class="timeline-dot">✓</div>
+                <div class="timeline-content">
+                    <div class="timeline-label">Out for Delivery</div>
+                    <div class="timeline-date">Completed</div>
+                </div>
+            </div>
+            <div class="timeline-step completed">
+                <div class="timeline-dot">✓</div>
+                <div class="timeline-content">
+                    <div class="timeline-label">Delivered</div>
+                    <div class="timeline-date">{{ order.delivered_date|date:"d M, Y" }}</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Order Summary -->
+        <h3 style="margin: 25px 0 15px; color: #333; font-size: 16px;">Order Summary</h3>
+        <div class="summary">
+            <div class="summary-row">
+                <span class="summary-label">Order ID:</span>
+                <span class="summary-value">#{{ order_id }}</span>
+            </div>
+            <div class="summary-row">
+                <span class="summary-label">Total Amount:</span>
+                <span class="summary-value" style="color: #ff6b6b; font-size: 16px;">₹{{ order.total_amount }}</span>
+            </div>
+        </div>
+        
+        <!-- Rating Request -->
+        <h3 style="margin: 25px 0 15px; color: #333; font-size: 16px;">How was your experience?</h3>
+        <a href="#" class="cta-button" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">Rate This Order</a>
+        
+        <!-- Next Steps -->
+        <div style="background-color: #f0f4ff; padding: 20px; border-radius: 6px; margin: 20px 0;">
+            <h4 style="margin: 0 0 10px; color: #333;">What's Next?</h4>
+            <ul style="margin: 0; padding-left: 20px; color: #666; font-size: 14px;">
+                <li>You can return items within 30 days if you're not satisfied</li>
+                <li>Visit your account to track all your orders</li>
+                <li>Share your experience and earn reward points</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p><strong>Thank you for shopping with us!</strong></p>
+        <p>We hope to see you again soon.</p>
+        <p style="margin-top: 15px; border-top: 1px solid #333; padding-top: 15px;">© 2024 Your E-Commerce Store. All rights reserved.</p>
+    </div>
+</div>
+{% endblock %}

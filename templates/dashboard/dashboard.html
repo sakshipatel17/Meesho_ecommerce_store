@@ -1,0 +1,632 @@
+{% extends '../layout/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+    <!-- Header with Last Updated Info -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">Analytics Dashboard</h1>
+            <small class="text-muted" id="lastUpdated">Last updated: --:--:--</small>
+        </div>
+        <div class="d-flex gap-2">
+            <select id="dateFilter" class="form-select" style="width: auto;">
+                <option value="today">Today</option>
+                <option value="yesterday">Yesterday</option>
+                <option value="last_7_days" selected>Last 7 Days</option>
+                <option value="last_month">Last Month</option>
+            </select>
+            <button id="exportPdf" class="btn btn-primary">
+                <i class="fas fa-download me-2"></i>Export PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Orders</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalOrders">0</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-shopping-cart fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Total Sales</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalSales">0</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-box fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Total Revenue</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalRevenue">₹0</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Coupon Discount</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalCouponDiscount">₹0</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-tags fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 1 -->
+    <div class="row mb-4">
+        <!-- Sales Over Time -->
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Sales Over Time</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="salesOverTimeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Methods -->
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Payment Methods</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-pie pt-4 pb-2">
+                        <canvas id="paymentMethodsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 2 -->
+    <div class="row mb-4">
+        <!-- Orders vs Revenue -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Orders vs Revenue</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-bar">
+                        <canvas id="ordersVsRevenueChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Coupon Usage -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Coupon Usage</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-doughnut">
+                        <canvas id="couponUsageChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Analytics -->
+    <div class="row">
+        <!-- Top Selling Products -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Top 5 Selling Products</h6>
+                </div>
+                <div class="card-body">
+                    <div id="topSellingProducts">
+                        <div class="text-center">Loading...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Rated Products -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Top 5 Rated Products</h6>
+                </div>
+                <div class="card-body">
+                    <div id="topRatedProducts">
+                        <div class="text-center">Loading...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="position-fixed top-0 start-0 w-100 h-100 d-none" style="background: rgba(0,0,0,0.5); z-index: 9999;">
+    <div class="d-flex justify-content-center align-items-center h-100">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+let salesOverTimeChart, ordersVsRevenueChart, paymentMethodsChart, couponUsageChart;
+
+// Initialize all charts
+function initCharts() {
+    // Sales Over Time - Line Chart
+    const salesCtx = document.getElementById('salesOverTimeChart').getContext('2d');
+    salesOverTimeChart = new Chart(salesCtx, {
+        type: 'line',
+        data: {
+            datasets: [{
+                label: 'Revenue',
+                data: [],
+                borderColor: 'rgb(75, 192, 192)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                x: {
+                    type: 'category',
+                    labels: []
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '₹' + value.toLocaleString();
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Orders vs Revenue - Bar Chart
+    const ordersRevenueCtx = document.getElementById('ordersVsRevenueChart').getContext('2d');
+    ordersVsRevenueChart = new Chart(ordersRevenueCtx, {
+        type: 'bar',
+        data: {
+            labels: [],
+            datasets: [
+                {
+                    label: 'Orders',
+                    data: [],
+                    backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1,
+                    yAxisID: 'y'
+                },
+                {
+                    label: 'Revenue',
+                    data: [],
+                    backgroundColor: 'rgba(255, 99, 132, 0.8)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1,
+                    yAxisID: 'y1'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            scales: {
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: {
+                        display: true,
+                        text: 'Orders'
+                    }
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: {
+                        display: true,
+                        text: 'Revenue (₹)'
+                    },
+                    grid: {
+                        drawOnChartArea: false,
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return '₹' + value.toLocaleString();
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Payment Methods - Pie Chart
+    const paymentCtx = document.getElementById('paymentMethodsChart').getContext('2d');
+    paymentMethodsChart = new Chart(paymentCtx, {
+        type: 'pie',
+        data: {
+            labels: [],
+            datasets: [{
+                data: [],
+                backgroundColor: [
+                    '#FF6384',
+                    '#36A2EB',
+                    '#FFCE56',
+                    '#4BC0C0',
+                    '#9966FF'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+
+    // Coupon Usage - Doughnut Chart
+    const couponCtx = document.getElementById('couponUsageChart').getContext('2d');
+    couponUsageChart = new Chart(couponCtx, {
+        type: 'doughnut',
+        data: {
+            labels: [],
+            datasets: [{
+                data: [],
+                backgroundColor: [
+                    '#FF6384',
+                    '#36A2EB'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+}
+
+// Load all dashboard data
+function loadDashboardData(filter = 'last_7_days') {
+    showLoading();
+    
+    Promise.all([
+        fetch(`/dashboard/api/kpi/?filter=${filter}`).then(r => r.json()),
+        fetch(`/dashboard/api/sales-over-time/?filter=${filter}`).then(r => r.json()),
+        fetch(`/dashboard/api/orders-vs-revenue/?filter=${filter}`).then(r => r.json()),
+        fetch(`/dashboard/api/payment-methods/?filter=${filter}`).then(r => r.json()),
+        fetch(`/dashboard/api/coupon-usage/?filter=${filter}`).then(r => r.json()),
+        fetch(`/dashboard/api/product-analytics/?filter=${filter}`).then(r => r.json())
+    ]).then(([kpiData, salesData, ordersRevenueData, paymentData, couponData, productData]) => {
+        // Update KPI cards
+        document.getElementById('totalOrders').textContent = kpiData.total_orders.toLocaleString();
+        document.getElementById('totalSales').textContent = kpiData.total_sales.toLocaleString();
+        document.getElementById('totalRevenue').textContent = '₹' + kpiData.total_revenue.toLocaleString();
+        document.getElementById('totalCouponDiscount').textContent = '₹' + kpiData.total_coupon_discount.toLocaleString();
+
+        // Update Sales Over Time chart
+        salesOverTimeChart.data.labels = salesData.data.map(d => d.x);
+        salesOverTimeChart.data.datasets[0].data = salesData.data.map(d => d.y);
+        salesOverTimeChart.update();
+
+        // Update Orders vs Revenue chart
+        ordersVsRevenueChart.data.labels = ordersRevenueData.labels;
+        ordersVsRevenueChart.data.datasets[0].data = ordersRevenueData.orders;
+        ordersVsRevenueChart.data.datasets[1].data = ordersRevenueData.revenue;
+        ordersVsRevenueChart.update();
+
+        // Update Payment Methods chart
+        paymentMethodsChart.data.labels = paymentData.data.map(d => d.label);
+        paymentMethodsChart.data.datasets[0].data = paymentData.data.map(d => d.value);
+        paymentMethodsChart.update();
+
+        // Update Coupon Usage chart
+        couponUsageChart.data.labels = couponData.data.map(d => d.label);
+        couponUsageChart.data.datasets[0].data = couponData.data.map(d => d.value);
+        couponUsageChart.update();
+
+        // Update Product Analytics
+        updateProductAnalytics(productData);
+        
+        hideLoading();
+    }).catch(error => {
+        console.error('Error loading dashboard data:', error);
+        hideLoading();
+    });
+}
+
+// Update product analytics
+function updateProductAnalytics(data) {
+    // Top Selling Products
+    const topSellingHtml = data.top_selling.map((product, index) => `
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <div>
+                <strong>₹${index + 1}. ${product.name}</strong>
+            </div>
+            <span class="badge bg-primary">${product.orders} orders</span>
+        </div>
+    `).join('');
+    document.getElementById('topSellingProducts').innerHTML = topSellingHtml || '<div class="text-muted">No data available</div>';
+
+    // Top Rated Products
+    const topRatedHtml = data.top_rated.map((product, index) => `
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <div>
+                <strong>₹${index + 1}. ${product.name}</strong>
+                <div class="text-muted small">
+                    ${generateStars(product.rating)} (${product.reviews} reviews)
+                </div>
+            </div>
+            <span class="badge bg-warning text-dark">${product.rating} ⭐</span>
+        </div>
+    `).join('');
+    document.getElementById('topRatedProducts').innerHTML = topRatedHtml || '<div class="text-muted">No data available</div>';
+}
+
+// Generate star rating HTML
+function generateStars(rating) {
+    const fullStars = Math.floor(rating);
+    const halfStar = rating % 1 >= 0.5 ? 1 : 0;
+    const emptyStars = 5 - fullStars - halfStar;
+    
+    let stars = '';
+    for (let i = 0; i < fullStars; i++) {
+        stars += '⭐';
+    }
+    if (halfStar) {
+        stars += '✨';
+    }
+    for (let i = 0; i < emptyStars; i++) {
+        stars += '☆';
+    }
+    return stars;
+}
+
+// Show/hide loading overlay
+function showLoading() {
+    document.getElementById('loadingOverlay').classList.remove('d-none');
+}
+
+function hideLoading() {
+    document.getElementById('loadingOverlay').classList.add('d-none');
+}
+
+// Event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    initCharts();
+    loadDashboardData();
+
+    // Date filter change
+    document.getElementById('dateFilter').addEventListener('change', function(e) {
+        loadDashboardData(e.target.value);
+    });
+
+    // Export PDF
+    document.getElementById('exportPdf').addEventListener('click', function() {
+        const filter = document.getElementById('dateFilter').value;
+        window.open(`/dashboard/export/pdf/?filter=${filter}`, '_blank');
+    });
+});
+</script>
+
+<style>
+.border-left-primary {
+    border-left: 0.25rem solid #4e73df !important;
+}
+.border-left-success {
+    border-left: 0.25rem solid #1cc88a !important;
+}
+.border-left-info {
+    border-left: 0.25rem solid #36b9cc !important;
+}
+.border-left-warning {
+    border-left: 0.25rem solid #f6c23e !important;
+}
+
+/* Animation for number updates */
+@keyframes pulse-update {
+    0% { background-color: #fff3cd; }
+    100% { background-color: transparent; }
+}
+
+.number-update {
+    animation: pulse-update 0.5s ease-in-out;
+}
+</style>
+
+<!-- AUTO REFRESH SCRIPT -->
+<script>
+// ====================================
+// REAL-TIME DASHBOARD AUTO-REFRESH
+// ====================================
+
+// Configuration
+const REFRESH_INTERVAL = 7000; // Refresh every 7 seconds (adjust as needed: 5000-10000)
+let autoRefreshTimer;
+
+// Initialize auto-refresh
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Dashboard auto-refresh initialized');
+    
+    // Initial load
+    updateDashboardData();
+    
+    // Set up auto-refresh interval
+    startAutoRefresh();
+    
+    // Refresh when date filter changes
+    document.getElementById('dateFilter').addEventListener('change', function() {
+        updateDashboardData();
+    });
+});
+
+// Start auto-refresh timer
+function startAutoRefresh() {
+    autoRefreshTimer = setInterval(function() {
+        updateDashboardData();
+    }, REFRESH_INTERVAL);
+    console.log('Auto-refresh timer started: ' + REFRESH_INTERVAL + 'ms');
+}
+
+// Stop auto-refresh timer (useful for cleanup)
+function stopAutoRefresh() {
+    if (autoRefreshTimer) {
+        clearInterval(autoRefreshTimer);
+        console.log('Auto-refresh timer stopped');
+    }
+}
+
+// Main function to fetch and update dashboard data
+function updateDashboardData() {
+    const filterType = document.getElementById('dateFilter').value;
+    const apiUrl = `/dashboard/api/live-data/?filter=${filterType}`;
+    
+    // Fetch live data from API
+    fetch(apiUrl)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Update KPI cards with smooth animation
+            updateKPICard('totalOrders', data.total_orders);
+            updateKPICard('totalSales', data.total_sales);
+            updateKPICard('totalRevenue', '₹' + formatNumber(data.total_revenue));
+            updateKPICard('totalCouponDiscount', '₹' + formatNumber(data.total_coupon_discount));
+            
+            // Update last updated timestamp
+            updateLastUpdatedTime(data.last_updated);
+            
+            console.log('Dashboard updated at ' + new Date().toLocaleTimeString());
+        })
+        .catch(error => {
+            console.error('Error fetching dashboard data:', error);
+        });
+}
+
+// Update a single KPI card value with animation
+function updateKPICard(elementId, newValue) {
+    const element = document.getElementById(elementId);
+    
+    if (element) {
+        const oldValue = element.textContent;
+        
+        // Only update if value changed
+        if (oldValue.toString().trim() !== newValue.toString().trim()) {
+            // Add pulse animation
+            element.classList.add('number-update');
+            
+            // Update the value
+            element.textContent = newValue;
+            
+            // Remove animation class after animation completes
+            setTimeout(() => {
+                element.classList.remove('number-update');
+            }, 500);
+        }
+    }
+}
+
+// Update the "Last Updated" timestamp
+function updateLastUpdatedTime(timeString) {
+    const lastUpdatedElement = document.getElementById('lastUpdated');
+    if (lastUpdatedElement) {
+        lastUpdatedElement.textContent = 'Last updated: ' + timeString;
+    }
+}
+
+// Format large numbers with commas (e.g., 10000 -> 10,000)
+function formatNumber(num) {
+    return Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+// Optional: Restart auto-refresh when user returns to tab
+document.addEventListener('visibilitychange', function() {
+    if (document.hidden) {
+        console.log('Tab hidden - pausing auto-refresh');
+        stopAutoRefresh();
+    } else {
+        console.log('Tab visible - resuming auto-refresh');
+        updateDashboardData();
+        startAutoRefresh();
+    }
+});
+
+// Clean up on page unload
+window.addEventListener('beforeunload', function() {
+    stopAutoRefresh();
+});
+</script>
+</style>
+{% endblock %}

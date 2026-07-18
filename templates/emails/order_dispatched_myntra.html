@@ -1,0 +1,108 @@
+{% extends "emails/base_myntra.html" %}
+
+{% block email_content %}
+<div class="container">
+    <div class="header">
+        <h1>🚚 Your Order is Dispatched!</h1>
+        <p>Your package is on its way to you</p>
+    </div>
+    
+    <div class="content">
+        <p>Hi {{ customer_name }},</p>
+        
+        <p>Great news! Your order has been dispatched and is now on its way to you. Track your package in real-time below.</p>
+        
+        <!-- Tracking Section -->
+        <div class="tracking-section">
+            <p style="margin: 0 0 10px; font-size: 14px;">Tracking ID</p>
+            <div class="tracking-id">{{ tracking_id }}</div>
+            <p style="margin: 10px 0 0; font-size: 12px; opacity: 0.9;">Use this to track your shipment</p>
+        </div>
+        
+        <!-- Order Info -->
+        <div class="order-info">
+            <div class="order-info-row">
+                <span class="order-info-label">Order ID:</span>
+                <span class="order-info-value">#{{ order_id }}</span>
+            </div>
+            <div class="order-info-row">
+                <span class="order-info-label">Dispatch Date:</span>
+                <span class="order-info-value">{{ order.shipped_date|date:"d M, Y" }}</span>
+            </div>
+            <div class="order-info-row">
+                <span class="order-info-label">Estimated Delivery:</span>
+                <span class="order-info-value">{{ estimated_delivery }}</span>
+            </div>
+            <div class="order-info-row">
+                <span class="order-info-label">Shipping Method:</span>
+                <span class="order-info-value">Standard Delivery</span>
+            </div>
+        </div>
+        
+        <!-- Timeline -->
+        <h3 style="margin: 25px 0 15px; color: #333; font-size: 16px;">Delivery Progress</h3>
+        <div class="timeline">
+            <div class="timeline-step completed">
+                <div class="timeline-dot">✓</div>
+                <div class="timeline-content">
+                    <div class="timeline-label">Order Placed</div>
+                    <div class="timeline-date">{{ order.created_at|date:"d M, Y" }}</div>
+                </div>
+            </div>
+            <div class="timeline-step completed">
+                <div class="timeline-dot">✓</div>
+                <div class="timeline-content">
+                    <div class="timeline-label">Processing</div>
+                    <div class="timeline-date">Completed</div>
+                </div>
+            </div>
+            <div class="timeline-step current">
+                <div class="timeline-dot">✓</div>
+                <div class="timeline-content">
+                    <div class="timeline-label">Dispatched</div>
+                    <div class="timeline-date">{{ order.shipped_date|date:"d M, Y \a\t H:i" }}</div>
+                </div>
+            </div>
+            <div class="timeline-step">
+                <div class="timeline-dot">4</div>
+                <div class="timeline-content">
+                    <div class="timeline-label">Out for Delivery</div>
+                    <div class="timeline-date">Expected soon</div>
+                </div>
+            </div>
+            <div class="timeline-step">
+                <div class="timeline-dot">5</div>
+                <div class="timeline-content">
+                    <div class="timeline-label">Delivered</div>
+                    <div class="timeline-date">Confirmation email</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Delivery Address -->
+        <h3 style="margin: 25px 0 15px; color: #333; font-size: 16px;">Delivery Address</h3>
+        <div class="address-box">
+            <h3>{{ order.name }}</h3>
+            <p>
+                {{ order.address }}<br>
+                {{ order.city }}, {{ order.state }} {{ order.pincode }}<br>
+                Mobile: {{ order.phone }}
+            </p>
+        </div>
+        
+        <!-- CTA Button -->
+        <a href="#" class="cta-button">Track in Real-Time</a>
+        
+        <!-- Alert -->
+        <div class="alert alert-info">
+            <strong>Pro Tip:</strong> Stay alert for a notification when your package is out for delivery. Ensure someone is available to receive it.
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p><strong>Need Help?</strong></p>
+        <p>Contact us if you have any concerns about your delivery.</p>
+        <p style="margin-top: 15px; border-top: 1px solid #333; padding-top: 15px;">© 2024 Your E-Commerce Store. All rights reserved.</p>
+    </div>
+</div>
+{% endblock %}

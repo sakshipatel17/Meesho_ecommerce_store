@@ -1,0 +1,768 @@
+{% extends '../layout/base.html' %}
+{% load static %}
+{% block content %}
+<section>
+  <div class="mx-auto max-w-[90rem]">
+    <div class="sm:px-10 lg:px-20 xl:px-32">
+      <div class="mt-10 md:w-[60%] mx-auto px-4 pt-8 lg:mt-0">
+        <p class="text-xl font-medium">Complete Your Order</p>
+        <p class="text-gray-400">
+          Fill in your details to place your order. Payment will be processed on delivery.
+        </p>
+        
+        <!-- Checkout Progress Indicator -->
+        <div class="mb-8">
+          <div class="flex items-center justify-between relative">
+            <!-- Progress Line -->
+            <div class="absolute top-5 left-0 right-0 h-1 bg-gray-200"></div>
+            
+            <!-- Step 1: Bag -->
+            <div class="flex flex-col items-center relative z-10">
+              <div class="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center text-white font-semibold text-sm">
+                <i class="fas fa-shopping-bag"></i>
+              </div>
+              <span class="mt-2 text-xs font-medium text-green-600">Bag</span>
+            </div>
+            
+            <!-- Step 2: Address -->
+            <div class="flex flex-col items-center relative z-10">
+              <div id="address-step" class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold text-sm">
+                <i class="fas fa-map-marker-alt"></i>
+              </div>
+              <span id="address-text" class="mt-2 text-xs font-medium text-blue-600">Address</span>
+            </div>
+            
+            <!-- Step 3: Payment -->
+            <div class="flex flex-col items-center relative z-10">
+              <div id="payment-step" class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-white font-semibold text-sm">
+                <i class="fas fa-credit-card"></i>
+              </div>
+              <span id="payment-text" class="mt-2 text-xs font-medium text-gray-400">Payment</span>
+            </div>
+          </div>
+        </div>
+        
+        {% if error %}
+        <div class="mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+            {{ error }}
+        </div>
+        {% endif %}
+        
+        <form action="" method="post" id="checkout-form">
+          {% csrf_token %}
+          <label for="name" class="mt-4 mb-2 block text-sm font-medium"
+            >Full Name</label
+          >
+          <div class="relative">
+            <input
+              type="text"
+              id="name"
+              name="name"
+              required
+              class="w-full rounded-md border border-gray-200 px-4 py-3 text-sm shadow-sm outline-none focus:z-10 focus:border-blue-500 focus:ring-blue-500"
+              placeholder="Enter your full name"
+            />
+          </div>
+          
+          <label for="address" class="mt-4 mb-2 block text-sm font-medium"
+            >Delivery Address</label
+          >
+          <div class="relative">
+            <textarea
+              id="address"
+              rows="4"
+              name="address"
+              required
+              class="w-full resize-none rounded-md border border-gray-200 px-4 py-3 text-sm shadow-sm outline-none focus:z-10 focus:border-blue-500 focus:ring-blue-500"
+              placeholder="Enter your complete delivery address"
+            ></textarea>
+          </div>
+
+          <div
+            class="md:flex md:items-center md:justify-between space-x-4 w-full"
+          >
+            <div class="w-full">
+              <label for="city" class="mt-4 mb-2 block text-sm font-medium"
+                >City</label
+              >
+              <div class="relative">
+                <input
+                  type="text"
+                  id="city"
+                  name="city"
+                  required
+                  class="w-full rounded-md border border-gray-200 px-4 py-3 text-sm shadow-sm outline-none focus:z-10 focus:border-blue-500 focus:ring-blue-500"
+                  placeholder="City"
+                />
+              </div>
+            </div>
+            <div class="w-full">
+              <label for="state" class="mt-4 mb-2 block text-sm font-medium"
+                >State</label
+              >
+              <div class="relative">
+                <input
+                  type="text"
+                  id="state"
+                  name="state"
+                  required
+                  class="w-full rounded-md border border-gray-200 px-4 py-3 text-sm shadow-sm outline-none focus:z-10 focus:border-blue-500 focus:ring-blue-500"
+                  placeholder="State"
+                />
+              </div>
+            </div>
+          </div>
+          
+          <div class="w-full">
+            <label for="pin" class="mt-4 mb-2 block text-sm font-medium"
+              >PIN Code</label
+            >
+            <div class="relative">
+              <input
+                type="text"
+                id="pin"
+                name="pin"
+                required
+                maxlength="6"
+                class="w-full rounded-md border border-gray-200 px-4 py-3 text-sm shadow-sm outline-none focus:z-10 focus:border-blue-500 focus:ring-blue-500"
+                placeholder="6-digit PIN code"
+              />
+            </div>
+          </div>
+          
+          <div class="w-full">
+            <label for="phone" class="mt-4 mb-2 block text-sm font-medium"
+              >Phone Number</label
+            >
+            <div class="relative">
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                required
+                maxlength="15"
+                class="w-full rounded-md border border-gray-200 px-4 py-3 text-sm shadow-sm outline-none focus:z-10 focus:border-blue-500 focus:ring-blue-500"
+                placeholder="10-digit phone number"
+              />
+            </div>
+          </div>
+
+          <!-- Order Summary -->
+          <div class="mt-6 p-4 bg-gray-50 rounded-lg" data-final-total="{{ final_total }}">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Order Summary</h3>
+            
+            <div class="space-y-2">
+              {% for item in cart_items %}
+              <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                <div class="flex-1">
+                  <p class="font-medium text-gray-800">{{ item.product.name }}</p>
+                  <p class="text-xs text-gray-500 italic">Qty: {{ item.quantity }}</p>
+                </div>
+                <p class="font-semibold text-gray-900 ml-4">&#8377;{{ item.subtotal }}</p>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Coupon Code Section -->
+          <div class="mt-6 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
+            <h4 class="text-sm font-semibold text-gray-900 mb-3 flex items-center">
+              <i class="fas fa-ticket-alt text-purple-600 mr-2"></i>
+              <span class="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                Have a Coupon Code? Get Instant Discount!
+              </span>
+            </h4>
+            <div class="flex gap-2">
+              <select
+                id="coupon-code"
+                name="coupon-code"
+                class="flex-1 rounded-lg border border-purple-300 px-3 py-2 text-sm focus:border-purple-500 focus:ring-purple-500 focus:ring-2 transition-all"
+              >
+                <option value="">🎫 Select a coupon code</option>
+                {% for coupon in eligible_coupons %}
+                <option value="{{ coupon.code }}" 
+                        {% if not coupon.is_eligible %}disabled style="color: #9ca3af; background-color: #f3f4f6;"{% endif %}
+                        {% if coupon.is_eligible %}style="color: #059669; font-weight: 500;"{% endif %}>
+                  {% if coupon.code == 'PREMIUM25' %}🎯
+                  {% elif coupon.code == 'SAVE20' %}💰
+                  {% elif coupon.code == 'SAVE15' %}🎁
+                  {% elif coupon.code == 'FLAT50' %}💎
+                  {% elif coupon.code == 'FIRST10' %}🌟
+                  {% elif coupon.code == 'MEESHO15' %}🛍️
+                  {% elif coupon.code == 'FLAT100' %}💎
+                  {% elif coupon.code == 'TEST10' %}🧪
+                  {% endif %}
+                  {{ coupon.code }} - 
+                  {% if coupon.discount_type == 'percentage' %}{{ coupon.discount_value|floatformat:0 }}%{% else %}₹{{ coupon.discount_value|floatformat:0 }}{% endif %} off
+                  {% if coupon.is_for_first_order %} (First Order){% endif %}
+                  {% if coupon.min_order_amount > 0 %} (Min: ₹{{ coupon.min_order_amount|floatformat:0 }}){% endif %}
+                  {% if not coupon.is_eligible %} - {{ coupon.ineligibility_reason }}{% endif %}
+                  {% if coupon.is_eligible and coupon.discount_amount > 0 %} [Save ₹{{ coupon.discount_amount|floatformat:0 }}]{% endif %}
+                </option>
+                {% empty %}
+                <option disabled style="color: #9ca3af;">🚫 No coupons available</option>
+                {% endfor %}
+              </select>
+              <button
+                type="button"
+                onclick="applyCoupon()"
+                class="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all text-sm font-bold shadow-lg transform hover:scale-105"
+              >
+                <i class="fas fa-check-circle mr-1"></i>
+                Apply
+              </button>
+            </div>
+            {% if coupon_message %}
+            <div id="coupon-message" class="mt-3 p-3 rounded-lg text-sm font-medium {% if coupon_success %}bg-green-100 text-green-800 border border-green-200{% else %}bg-red-100 text-red-800 border border-red-200{% endif %}">
+              <i class="fas {% if coupon_success %}fa-check-circle text-green-600{% else %}fa-exclamation-circle text-red-600{% endif %} mr-2"></i>
+              {{ coupon_message }}
+            </div>
+            {% endif %}
+            
+            <!-- Coupon Tips -->
+            <div class="mt-3 text-xs text-gray-600 space-y-1">
+              <p><i class="fas fa-lightbulb text-yellow-500 mr-1"></i> 💡 <strong>TIP:</strong> Select a coupon to see your savings instantly!</p>
+              <p><i class="fas fa-info-circle text-blue-500 mr-1"></i> 📋 <strong>NOTE:</strong> Some coupons have minimum order requirements</p>
+            </div>
+          </div>
+
+          <h3 class="my-5 text-lg font-semibold text-gray-900">
+            Payment Method:
+          </h3>
+          <div class="md:flex md:items-center space-x-4 space-y-4 md:space-y-0">
+            <label
+              for="cod-payment"
+              class="flex p-3 block md:w-1/2 bg-white border border-gray-200 rounded-md focus:border-blue-500 focus:ring-blue-500 cursor-pointer hover:bg-gray-50"
+            >
+              <input
+                type="radio"
+                name="pay-method"
+                class="shrink-0 mr-auto mt-0.5 border-gray-200 rounded-full text-blue-600 pointer-events-none focus:ring-blue-500"
+                id="cod-payment"
+                value="cod"
+                checked
+                onchange="toggleOnlineOptions()"
+              /><span
+                class="text-gray-700 flex items-center font-semibold gap-x-2"
+                >Cash on Delivery
+                <i class="fas fa-money-bill-wave text-green-600"></i>
+              </span>
+            </label>
+            
+            <label
+              for="online-payment"
+              class="flex p-3 block md:w-1/2 bg-white border border-gray-200 rounded-md focus:border-blue-500 focus:ring-blue-500 cursor-pointer hover:bg-gray-50"
+            >
+              <input
+                type="radio"
+                name="pay-method"
+                class="shrink-0 mr-auto mt-0.5 border-gray-200 rounded-full text-blue-600 pointer-events-none focus:ring-blue-500"
+                id="online-payment"
+                value="online"
+                onchange="toggleOnlineOptions()"
+              /><span
+                class="text-gray-700 flex items-center font-semibold gap-x-2"
+                >Online Payment
+                <i class="fas fa-credit-card text-blue-600"></i>
+              </span>
+            </label>
+          </div>
+
+          <!-- Online Payment Options (Hidden by default) -->
+          <div id="online-options" class="mt-4 p-4 bg-blue-50 rounded-lg" style="display: none;">
+            <h4 class="text-sm font-semibold text-gray-900 mb-3">
+              <i class="fas fa-wallet text-blue-600"></i>
+              Select Payment Option:
+            </h4>
+            <select 
+              id="online-payment-type" 
+              name="online-payment-type" 
+              class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500"
+              onchange="loadPaymentMethodUI()"
+            >
+              <option value="">Select payment method</option>
+              <option value="card">💳 Credit/Debit Card</option>
+              <option value="paytm">📱 Paytm</option>
+              <option value="upi">🔐 UPI</option>
+            </select>
+            
+            <!-- Dynamic Payment Method UI Container -->
+            <div id="payment-method-container" class="mt-4"></div>
+          </div>
+
+          <!-- Place Order Button -->
+          <button
+            type="submit"
+            class="mt-6 flex items-center justify-center gap-x-2 w-full bg-orange-500 text-black rounded-md px-4 py-3 font-bold hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 border-2 border-orange-600"
+          >
+            <i class="fas fa-shopping-cart"></i>
+            Place Order
+          </button>
+          
+          <p class="mt-4 text-sm text-gray-500 text-center">
+            <i class="fas fa-shield-alt text-green-500"></i>
+            Your order is secure and will be delivered safely
+          </p>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Checkout Progress Management
+function updateCheckoutProgress(step) {
+    // Reset all steps to inactive
+    document.getElementById('address-step').className = 'w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-white font-semibold text-sm';
+    document.getElementById('address-text').className = 'mt-2 text-xs font-medium text-gray-400';
+    document.getElementById('payment-step').className = 'w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-white font-semibold text-sm';
+    document.getElementById('payment-text').className = 'mt-2 text-xs font-medium text-gray-400';
+    
+    // Activate current step
+    if (step === 'address') {
+        document.getElementById('address-step').className = 'w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold text-sm';
+        document.getElementById('address-text').className = 'mt-2 text-xs font-medium text-blue-600';
+    } else if (step === 'payment') {
+        document.getElementById('payment-step').className = 'w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold text-sm';
+        document.getElementById('payment-text').className = 'mt-2 text-xs font-medium text-blue-600';
+    }
+}
+
+// Auto-detect current step based on page content
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if we're on payment step (payment method selection visible)
+    const paymentContainer = document.getElementById('payment-method-container');
+    if (paymentContainer && paymentContainer.innerHTML.trim() !== '') {
+        updateCheckoutProgress('payment');
+    } else {
+        updateCheckoutProgress('address');
+    }
+});
+
+function toggleOnlineOptions() {
+    const codPayment = document.getElementById('cod-payment');
+    const onlinePayment = document.getElementById('online-payment');
+    const onlineOptions = document.getElementById('online-options');
+    
+    if (onlinePayment.checked) {
+        onlineOptions.style.display = 'block';
+        updateCheckoutProgress('payment');
+    } else {
+        onlineOptions.style.display = 'none';
+        updateCheckoutProgress('address');
+        // Clear payment method UI when switching away from online
+        document.getElementById('payment-method-container').innerHTML = '';
+        document.getElementById('online-payment-type').value = '';
+    }
+}
+
+function loadPaymentMethodUI() {
+    const paymentType = document.getElementById('online-payment-type').value;
+    const container = document.getElementById('payment-method-container');
+    
+    // Always clear first
+    container.innerHTML = '';
+    
+    // If nothing selected → don't show anything
+    if (!paymentType) {
+        return;
+    }
+    
+    // Update progress to payment step
+    updateCheckoutProgress('payment');
+    
+    if (paymentType === 'card') {
+        container.innerHTML = `
+            <div class="mt-4 p-4 bg-blue-50 rounded-lg">
+                <h4 class="text-sm font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-credit-card text-blue-600"></i>
+                    Card Payment Details
+                </h4>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Cardholder Name
+                        </label>
+                        <input 
+                            type="text" 
+                            id="card-holder"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="John Doe"
+                            required
+                        />
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Card Number
+                        </label>
+                        <input 
+                            type="text" 
+                            id="card-number"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="1234 5678 9012 3456"
+                            maxlength="19"
+                            required
+                        />
+                        <small class="text-gray-500">Format: xxxx xxxx xxxx xxxx</small>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Expiry Date
+                            </label>
+                            <input 
+                                type="text" 
+                                id="card-expiry"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="MM/YY"
+                                maxlength="5"
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                CVV
+                            </label>
+                            <input 
+                                type="text" 
+                                id="card-cvv"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="123"
+                                maxlength="4"
+                                required
+                            />
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 p-3 bg-blue-100 rounded-md">
+                        <p class="text-xs text-blue-900">
+                            <i class="fas fa-info-circle"></i>
+                            For demo purposes, use any valid 16-digit number
+                        </p>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Setup card form validation
+        setupCardFormValidation();
+        
+    } else if (paymentType === 'upi' || paymentType === 'paytm') {
+        container.innerHTML = `
+            <div class="mt-4 p-4 bg-white rounded-lg shadow text-center">
+                <h4 class="text-sm font-semibold mb-2">Scan & Pay</h4>
+                <div id="qr-code-container" class="mx-auto mb-3">
+                    <div class="animate-pulse bg-gray-200 w-64 h-64 mx-auto rounded-lg flex items-center justify-center">
+                        <i class="fas fa-qrcode text-4xl text-gray-400"></i>
+                    </div>
+                </div>
+                
+                <p class="text-xs text-gray-500 mb-3">
+                    Generating QR code for ${paymentType === 'upi' ? 'UPI' : 'Paytm'} payment...
+                </p>
+
+                <div class="mt-3 text-left">
+                    <label class="text-sm font-medium text-gray-700">
+                        Enter your ${paymentType === 'upi' ? 'UPI ID' : 'Paytm number'}:
+                    </label>
+                    <input 
+                        type="${paymentType === 'upi' ? 'text' : 'tel'}" 
+                        id="${paymentType === 'upi' ? 'upi-id' : 'paytm-phone'}"
+                        name="${paymentType === 'upi' ? 'upi_id' : 'paytm_phone'}"
+                        placeholder="${paymentType === 'upi' ? 'example@okaxis' : '9876543210'}"
+                        maxlength="${paymentType === 'upi' ? '50' : '10'}"
+                        class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500"
+                    >
+                </div>
+            </div>
+        `;
+        
+        // Generate dynamic QR code
+        generateDynamicQR(paymentType);
+    } else {
+        container.innerHTML = '';
+    }
+}
+
+function generateDynamicQR(paymentType) {
+    // Get the final total amount from the page
+    const finalTotalElement = document.querySelector('[data-final-total]');
+    let amount = '{{ final_total|default:0 }}';
+    
+    // Try to get amount from page context or calculate from cart
+    if (!amount || amount === '0') {
+        // Fallback: try to extract from order summary
+        const totalElements = document.querySelectorAll('.font-semibold');
+        for (let elem of totalElements) {
+            if (elem.textContent.includes('₹') && !elem.textContent.includes('Save')) {
+                amount = elem.textContent.replace('₹', '').trim();
+                break;
+            }
+        }
+    }
+    
+    // Convert to number
+    amount = parseFloat(amount) || 0;
+    
+    // Send AJAX request to generate QR code
+    const formData = new FormData();
+    formData.append('payment_type', paymentType);
+    formData.append('amount', amount);
+    formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+    
+    fetch('{% url "generate_qr_code" %}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        const qrContainer = document.getElementById('qr-code-container');
+        if (data.success && qrContainer) {
+            qrContainer.innerHTML = `
+                <img src="${data.qr_code}" width="250" class="mx-auto mb-3 rounded-lg shadow-sm" alt="${paymentType} QR Code">
+                <div class="mt-2 p-2 bg-gray-50 rounded text-xs">
+                    <p class="font-medium">${paymentType === 'upi' ? 'UPI ID' : 'Paytm Number'}: ${data.merchant_id}</p>
+                    <p class="text-gray-600">Amount: ₹${data.amount}</p>
+                </div>
+            `;
+        } else {
+            // Fallback to static QR code
+            qrContainer.innerHTML = `
+                <img src="/static/images/qrcode.jpeg?v=4" width="250" class="mx-auto mb-3">
+                <p class="text-xs text-red-500">Using fallback QR code</p>
+            `;
+        }
+    })
+    .catch(error => {
+        console.error('Error generating QR code:', error);
+        // Fallback to static QR code
+        const qrContainer = document.getElementById('qr-code-container');
+        if (qrContainer) {
+            qrContainer.innerHTML = `
+                <img src="/static/images/qrcode.jpeg?v=4" width="250" class="mx-auto mb-3">
+                <p class="text-xs text-red-500">Using fallback QR code</p>
+            `;
+        }
+    });
+}
+
+function setupCardFormValidation() {
+    const cardNumber = document.getElementById('card-number');
+    const cardHolder = document.getElementById('card-holder');
+    const cardExpiry = document.getElementById('card-expiry');
+    const cardCVV = document.getElementById('card-cvv');
+    
+    if (!cardNumber || !cardHolder || !cardExpiry || !cardCVV) {
+        return;
+    }
+    
+    // Card number formatting (xxxx xxxx xxxx xxxx)
+    cardNumber.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\s/g, '');
+        let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+        e.target.value = formattedValue;
+    });
+    
+    // Expiry date formatting (MM/YY)
+    cardExpiry.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length >= 2) {
+            value = value.slice(0, 2) + '/' + value.slice(2, 4);
+        }
+        e.target.value = value;
+    });
+    
+    // CVV only numbers
+    cardCVV.addEventListener('input', function(e) {
+        e.target.value = e.target.value.replace(/\D/g, '');
+    });
+    
+    // Real-time validation
+    [cardNumber, cardHolder, cardExpiry, cardCVV].forEach(field => {
+        field.addEventListener('blur', validateCardField);
+    });
+}
+
+function validateCardField(event) {
+    const field = event.target;
+    const value = field.value.trim();
+    let isValid = true;
+    let errorMessage = '';
+    
+    // Remove previous error styling
+    field.classList.remove('border-red-500');
+    const errorDiv = field.parentNode.querySelector('.text-red-500');
+    if (errorDiv) errorDiv.remove();
+    
+    switch(field.id) {
+        case 'card-number':
+            const cleanNumber = value.replace(/\s/g, '');
+            if (cleanNumber.length !== 16 || !/^\d{16}$/.test(cleanNumber)) {
+                isValid = false;
+                errorMessage = 'Card number must be 16 digits';
+            }
+            break;
+            
+        case 'card-holder':
+            if (value.length < 3 || !/^[a-zA-Z\s]+$/.test(value)) {
+                isValid = false;
+                errorMessage = 'Please enter valid cardholder name';
+            }
+            break;
+            
+        case 'card-expiry':
+            if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(value)) {
+                isValid = false;
+                errorMessage = 'Use MM/YY format';
+            } else {
+                // Check if expiry date is in the future
+                const [month, year] = value.split('/');
+                const expiry = new Date(2000 + parseInt(year), parseInt(month) - 1);
+                const now = new Date();
+                if (expiry < now) {
+                    isValid = false;
+                    errorMessage = 'Card has expired';
+                }
+            }
+            break;
+            
+        case 'card-cvv':
+            if (!/^\d{3,4}$/.test(value)) {
+                isValid = false;
+                errorMessage = 'CVV must be 3-4 digits';
+            }
+            break;
+    }
+    
+    if (!isValid) {
+        field.classList.add('border-red-500');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'text-red-500 text-xs mt-1';
+        errorDiv.textContent = errorMessage;
+        field.parentNode.appendChild(errorDiv);
+    }
+    
+    return isValid;
+}
+
+function validateCardForm() {
+    const cardNumber = document.getElementById('card-number');
+    const cardHolder = document.getElementById('card-holder');
+    const cardExpiry = document.getElementById('card-expiry');
+    const cardCVV = document.getElementById('card-cvv');
+    
+    if (!cardNumber || !cardHolder || !cardExpiry || !cardCVV) {
+        return false;
+    }
+    
+    // Validate all fields
+    const validations = [
+        validateCardField({ target: cardNumber }),
+        validateCardField({ target: cardHolder }),
+        validateCardField({ target: cardExpiry }),
+        validateCardField({ target: cardCVV })
+    ];
+    
+    return validations.every(v => v === true);
+}
+
+function validatePaymentForm() {
+    const onlinePayment = document.getElementById('online-payment')?.checked;
+    
+    if (!onlinePayment) {
+        return true; // COD doesn't need validation
+    }
+    
+    const paymentType = document.getElementById('online-payment-type')?.value;
+    
+    if (!paymentType) {
+        alert('Please select a payment method');
+        return false;
+    }
+    
+    // Validate based on payment type
+    if (paymentType === 'card') {
+        return validateCardForm();
+    } else if (paymentType === 'upi') {
+        const upiInput = document.getElementById('upi-id');
+        if (!upiInput || !upiInput.value.trim()) {
+            alert('Please enter UPI ID');
+            return false;
+        }
+        return true;
+    } else if (paymentType === 'paytm') {
+        const paytmInput = document.getElementById('paytm-phone');
+        if (!paytmInput || !/^\d{10}$/.test(paytmInput.value)) {
+            alert('Please enter valid 10-digit Paytm number');
+            return false;
+        }
+        return true;
+    }
+    
+    return true;
+}
+
+function applyCoupon() {
+    const couponCode = document.getElementById('coupon-code').value.trim();
+    
+    if (!couponCode) {
+        alert('Please enter a coupon code');
+        return;
+    }
+    
+    // Create form data
+    const formData = new FormData();
+    formData.append('coupon_code', couponCode);
+    formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+    
+    // Send AJAX request
+    fetch('{% url "apply_coupon" %}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Reload page to show updated total
+            location.reload();
+        } else {
+            // Show error message
+            const messageDiv = document.getElementById('coupon-message');
+            if (messageDiv) {
+                messageDiv.textContent = data.message;
+                messageDiv.className = 'mt-3 p-3 rounded-lg text-sm font-medium bg-red-100 text-red-800 border border-red-200';
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error applying coupon. Please try again.');
+    });
+}
+
+// Add form validation to checkout form submission
+document.addEventListener('DOMContentLoaded', function() {
+    const checkoutForm = document.getElementById('checkout-form');
+    if (checkoutForm) {
+        checkoutForm.addEventListener('submit', function(e) {
+            if (!validatePaymentForm()) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

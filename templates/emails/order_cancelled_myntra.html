@@ -1,0 +1,95 @@
+{% extends "emails/base_myntra.html" %}
+
+{% block email_content %}
+<div class="container">
+    <div class="header" style="background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);">
+        <h1>❌ Order Cancelled</h1>
+        <p>Cancellation confirmed</p>
+    </div>
+    
+    <div class="content">
+        <p>Hi {{ customer_name }},</p>
+        
+        <p>Your order has been cancelled as per your request. We're sorry to see you go. If you have any questions about this cancellation, please contact us.</p>
+        
+        <!-- Cancellation Alert -->
+        <div class="alert" style="background-color: #ffebee; color: #c62828; border-left: 4px solid #f44336;">
+            <strong>Order Cancelled</strong><br>
+            {% if reason %}
+            Reason: {{ reason }}
+            {% else %}
+            Your order #{{ order_id }} has been cancelled.
+            {% endif %}
+        </div>
+        
+        <!-- Refund Info -->
+        <div class="order-info" style="border-left-color: #f44336;">
+            <div class="order-info-row">
+                <span class="order-info-label">Order ID:</span>
+                <span class="order-info-value">#{{ order_id }}</span>
+            </div>
+            <div class="order-info-row">
+                <span class="order-info-label">Cancelled Date:</span>
+                <span class="order-info-value">{{ order.updated_at|date:"d M, Y" }}</span>
+            </div>
+            <div class="order-info-row">
+                <span class="order-info-label">Refund Status:</span>
+                <span class="order-info-value">Processing</span>
+            </div>
+            <div class="order-info-row">
+                <span class="order-info-label">Amount to Refund:</span>
+                <span class="order-info-value" style="color: #4caf50; font-weight: bold;">₹{{ order.total_amount }}</span>
+            </div>
+        </div>
+        
+        <!-- Refund Timeline -->
+        <div style="background-color: #f0f4ff; padding: 20px; border-radius: 6px; margin: 20px 0; border-left: 4px solid #2196f3;">
+            <h4 style="margin: 0 0 15px; color: #333;">Refund Timeline</h4>
+            <div class="timeline">
+                <div class="timeline-step completed">
+                    <div class="timeline-dot">✓</div>
+                    <div class="timeline-content">
+                        <div class="timeline-label">Cancellation Confirmed</div>
+                        <div class="timeline-date">Today</div>
+                    </div>
+                </div>
+                <div class="timeline-step">
+                    <div class="timeline-dot">2</div>
+                    <div class="timeline-content">
+                        <div class="timeline-label">Refund Processing</div>
+                        <div class="timeline-date">1-3 business days</div>
+                    </div>
+                </div>
+                <div class="timeline-step">
+                    <div class="timeline-dot">3</div>
+                    <div class="timeline-content">
+                        <div class="timeline-label">Money Returned</div>
+                        <div class="timeline-date">3-5 business days</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Cancellation Reason -->
+        <div style="background-color: #fff9c4; padding: 15px; border-radius: 6px; margin: 20px 0; border-left: 4px solid #fbc02d;">
+            <p style="margin: 0 0 10px; font-weight: 600; color: #333;">Could you help us improve?</p>
+            <p style="margin: 0; color: #666; font-size: 14px;">We'd love to know why you cancelled this order. Your feedback helps us serve you better.</p>
+        </div>
+        
+        <!-- CTA -->
+        <a href="#" class="cta-button" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">View Refund Status</a>
+        
+        <!-- Contact Info -->
+        <div style="text-align: center; margin: 25px 0; padding: 20px; background-color: #f9f9f9; border-radius: 6px;">
+            <p style="margin: 0 0 10px; color: #333; font-weight: 600;">Need Help?</p>
+            <p style="margin: 0; color: #666; font-size: 14px;">Our support team is here to assist you with any questions about your cancellation or refund.</p>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p><strong>We'd love to have you back!</strong></p>
+        <p>Browse our latest collection and find something perfect for you.</p>
+        <p style="margin-top: 15px; border-top: 1px solid #333; padding-top: 15px;">© 2024 Your E-Commerce Store. All rights reserved.</p>
+    </div>
+</div>
+{% endblock %}

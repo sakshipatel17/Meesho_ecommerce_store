@@ -1,0 +1,34 @@
+Hi {{ customer_name }},
+
+Your order has been dispatched and is now on its way to you. Track your package in real-time using your tracking ID.
+
+===========================================
+ORDER DETAILS
+===========================================
+Order ID: #{{ order_id }}
+Tracking ID: {{ tracking_id }}
+Dispatch Date: {{ order.shipped_date|date:"d M, Y" }}
+Estimated Delivery: {{ estimated_delivery }}
+
+===========================================
+DELIVERY ADDRESS
+===========================================
+{{ order.name }}
+{{ order.address }}
+{{ order.city }}, {{ order.state }} {{ order.pincode }}
+
+===========================================
+SHIPPING STATUS
+===========================================
+Status: Dispatched ✓
+Last Update: {{ order.shipped_date|date:"d M, Y H:i" }}
+Estimated Time: Within 5 days
+
+Your package is on its way and will reach you soon. Keep your phone handy for updates from our delivery partner.
+
+Best regards,
+Your E-Commerce Store Team
+
+---
+Track your order at any time using your Tracking ID: {{ tracking_id }}
+© 2024 Your E-Commerce Store

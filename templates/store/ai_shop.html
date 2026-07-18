@@ -1,0 +1,291 @@
+{% extends 'layout/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Voice Search Section -->
+    <div class="voice-search-container">
+        <div class="input-group">
+            <input type="text" class="form-control" id="voiceSearchInput" placeholder="Search products... or click the mic to speak!">
+            <button class="voice-search-btn" title="Voice Search"></button>
+        </div>
+        <div class="voice-results" style="display: none;"></div>
+    </div>
+
+    <!-- Smart Offers Section -->
+    <div class="smart-offers" style="display: none;">
+        <h2>🎁 Special Offers Just for You!</h2>
+        <div id="offersContainer"></div>
+    </div>
+
+    <!-- AI Recommendations Section -->
+    <div class="ai-recommendations">
+        <h2>🤖 AI Recommendations for You</h2>
+        <div class="recommendation-grid"></div>
+    </div>
+
+    <!-- Trending Products Section -->
+    <div class="trending-section mt-5">
+        <h2>🔥 Trending Products</h2>
+        <div class="row trending-products-grid"></div>
+    </div>
+
+    <!-- Wishlist Reminders Section -->
+    <div class="wishlist-reminders" style="display: none;"></div>
+
+    <!-- Virtual Try-On Section -->
+    {% if user.is_authenticated %}
+    <div class="virtual-tryon-section mt-5">
+        <h2>✨ Virtual Try-On</h2>
+        <p>See how products look on you! Upload your photo to try products virtually.</p>
+        <div class="tryon-upload-area">
+            <div class="upload-icon">
+                <i class="fas fa-camera fa-3x mb-3"></i>
+            </div>
+            <h4>Upload Your Photo</h4>
+            <p>Click or drag & drop your image here</p>
+            <small>Supported formats: JPG, PNG (Max 5MB)</small>
+        </div>
+        <div class="tryon-result" style="display: none;"></div>
+    </div>
+    {% endif %}
+
+    <!-- Regular Shop Content -->
+    <div class="row mt-5">
+        {% for product in products %}
+        <div class="col-md-3 mb-4">
+            <div class="card product-card" data-product-id="{{ product.id }}">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                {% else %}
+                    <img src="{% static 'images/default-product.jpg' %}" class="card-img-top" alt="{{ product.name }}">
+                {% endif %}
+                
+                <!-- Seller Trust Badge -->
+                <div class="seller-trust-section mt-2" data-seller-id="{{ product.category.id }}"></div>
+                
+                <div class="card-body">
+                    <h6 class="card-title">{{ product.name }}</h6>
+                    <p class="card-text">₹{{ product.price }}</p>
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'product' product.slug %}" class="btn btn-primary btn-sm">View</a>
+                        {% if user.is_authenticated %}
+                            <button class="btn btn-outline-danger btn-sm" onclick="addToWishlist('{{ product.id }}')">
+                                <i class="fas fa-heart"></i>
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Similar Products Modal -->
+    <div class="modal fade" id="similarProductsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Similar Products You Might Like</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row" id="similarProductsContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Feedback Modal -->
+    <div class="modal fade" id="aiFeedbackModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Help Us Improve</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>How are our AI recommendations working for you?</p>
+                    <div class="feedback-buttons">
+                        <button class="btn btn-success me-2">👍 Great</button>
+                        <button class="btn btn-warning me-2">👌 Good</button>
+                        <button class="btn btn-danger">👎 Needs Work</button>
+                    </div>
+                    <div class="mt-3">
+                        <label for="feedbackText" class="form-label">Additional feedback (optional):</label>
+                        <textarea class="form-control" id="feedbackText" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="submitFeedback()">Submit Feedback</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Enhanced shop page functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Load AI features
+    if (typeof aiAssistant !== 'undefined') {
+        aiAssistant.loadAIRecommendations();
+        aiAssistant.loadTrendingProducts();
+        aiAssistant.checkWishlistReminders();
+        aiAssistant.checkForOffers();
+    }
+    
+    // Setup product card interactions
+    setupProductInteractions();
+});
+
+function setupProductInteractions() {
+    const productCards = document.querySelectorAll('.product-card');
+    
+    productCards.forEach(card => {
+        const productId = card.dataset.productId;
+        
+        // Track product views
+        card.addEventListener('mouseenter', function() {
+            if (typeof aiAssistant !== 'undefined') {
+                aiAssistant.trackBehavior(productId, 'hover');
+            }
+        });
+        
+        // Add similar products on click
+        card.addEventListener('click', function(e) {
+            if (!e.target.closest('button') && !e.target.closest('a')) {
+                loadSimilarProducts(productId);
+            }
+        });
+    });
+}
+
+async function loadSimilarProducts(productId) {
+    try {
+        const response = await fetch(`/api/ai/similar/${productId}/`);
+        const data = await response.json();
+        
+        if (data.success) {
+            const container = document.getElementById('similarProductsContainer');
+            container.innerHTML = data.similar_products.map(product => `
+                <div class="col-md-4 mb-3">
+                    <div class="card">
+                        <img src="${product.image || '/static/images/default-product.jpg'}" class="card-img-top" alt="${product.name}">
+                        <div class="card-body">
+                            <h6 class="card-title">${product.name}</h6>
+                            <div class="price">₹${product.price}</div>
+                            <a href="/product/${product.slug}/" class="btn btn-primary btn-sm">View</a>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            const modal = new bootstrap.Modal(document.getElementById('similarProductsModal'));
+            modal.show();
+        }
+    } catch (error) {
+        console.error('Error loading similar products:', error);
+    }
+}
+
+function submitFeedback() {
+    const feedbackText = document.getElementById('feedbackText').value;
+    
+    // Here you would send feedback to server
+    console.log('Feedback submitted:', feedbackText);
+    
+    // Show thank you message
+    const modal = bootstrap.Modal.getInstance(document.getElementById('aiFeedbackModal'));
+    modal.hide();
+    
+    // Show notification
+    if (typeof aiAssistant !== 'undefined') {
+        aiAssistant.showNotification('Thank you for your feedback!', 'success');
+    }
+}
+
+// Enhanced voice search with visual feedback
+document.addEventListener('DOMContentLoaded', function() {
+    const voiceInput = document.getElementById('voiceSearchInput');
+    const voiceBtn = document.querySelector('.voice-search-btn');
+    
+    if (voiceInput && voiceBtn) {
+        // Add visual feedback for voice search
+        voiceBtn.addEventListener('click', function() {
+            if (this.classList.contains('recording')) {
+                voiceInput.placeholder = 'Listening... Speak now!';
+            } else {
+                voiceInput.placeholder = 'Search products... or click the mic to speak!';
+            }
+        });
+    }
+});
+</script>
+
+<style>
+/* Additional shop-specific styles */
+.product-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.trending-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 20px;
+    padding: 30px;
+    margin: 30px 0;
+    color: white;
+}
+
+.trending-section h2 {
+    color: white;
+    margin-bottom: 20px;
+}
+
+.trending-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.trending-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    z-index: 1;
+}
+
+.trending-stats {
+    color: #6c757d;
+    font-size: 12px;
+}
+
+.feedback-buttons {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.feedback-buttons .btn {
+    margin: 0 5px;
+}
+
+.voice-search-container {
+    margin: 30px 0;
+}
+
+.voice-search-btn.recording {
+    animation: pulse 1.5s infinite;
+}
+</style>
+{% endblock %}

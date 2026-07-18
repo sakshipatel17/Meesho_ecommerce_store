@@ -1,0 +1,1 @@
+web: gunicorn kostaa.wsgi --log-file -

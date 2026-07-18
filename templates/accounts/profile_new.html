@@ -1,0 +1,631 @@
+{% extends '../layout/base.html' %}
+{% load static %}
+
+<style>
+/* MODERN PROFILE DASHBOARD STYLES (MEESHO-INSPIRED) */
+:root {
+  --meesho-pink: #ff3f6c;
+  --meesho-light-pink: #fff8fc;
+  --bg-gray: #f8f9fa;
+  --text-dark: #282c3f;
+  --text-light: #686b78;
+  --border-color: #eaeaec;
+  --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.profile-dashboard {
+  min-height: calc(100vh - 128px);
+  background: var(--bg-gray);
+  padding: 40px 20px;
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+
+.dashboard-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 30px;
+  align-items: start;
+}
+
+/* LEFT SIDEBAR NAVIGATION */
+.profile-sidebar {
+  background: white;
+  border-radius: 8px;
+  box-shadow: var(--card-shadow);
+  overflow: hidden;
+  position: sticky;
+  top: 100px;
+}
+
+.sidebar-user-info {
+  padding: 30px 20px;
+  background: linear-gradient(to bottom, var(--meesho-light-pink), white);
+  text-align: center;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.user-avatar-circle {
+  width: 70px;
+  height: 70px;
+  background: var(--meesho-pink);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 auto 15px;
+  box-shadow: 0 4px 10px rgba(255, 63, 108, 0.2);
+}
+
+.sidebar-user-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 5px;
+}
+
+.sidebar-user-email {
+  font-size: 13px;
+  color: var(--text-light);
+}
+
+.sidebar-menu {
+  list-style: none;
+  padding: 15px 0;
+  margin: 0;
+}
+
+.sidebar-menu li a {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 14px 25px;
+  color: var(--text-dark);
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border-left: 4px solid transparent;
+}
+
+.sidebar-menu li a i {
+  width: 20px;
+  font-size: 18px;
+  color: var(--text-light);
+  transition: color 0.2s ease;
+}
+
+.sidebar-menu li a:hover {
+  background: var(--meesho-light-pink);
+  color: var(--meesho-pink);
+}
+
+.sidebar-menu li a:hover i {
+  color: var(--meesho-pink);
+}
+
+.sidebar-menu li a.active {
+  background: var(--meesho-light-pink);
+  color: var(--meesho-pink);
+  border-left-color: var(--meesho-pink);
+  font-weight: 600;
+}
+
+.sidebar-menu li a.active i {
+  color: var(--meesho-pink);
+}
+
+.sidebar-menu li a.logout-link {
+  color: #d32f2f;
+}
+
+.sidebar-menu li a.logout-link:hover {
+  background: #fff5f5;
+}
+
+/* RIGHT CONTENT AREA */
+.content-area {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+.card-header-modern {
+  padding: 20px 25px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-title-modern {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card-body-modern {
+  padding: 25px;
+}
+
+/* INFO GRID */
+.profile-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 30px;
+}
+
+.info-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.info-label-modern {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.info-value-modern {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+/* ORDER CARDS */
+.order-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.order-item-card {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 15px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.order-item-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.order-main-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.order-icon-bg {
+  width: 45px;
+  height: 45px;
+  background: #f0f0f0;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.order-status-badge {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.status-delivered { background: #e8f5e9; color: #2e7d32; }
+.status-pending { background: #fff8e1; color: #f57f17; }
+.status-cancelled { background: #ffebee; color: #c62828; }
+
+/* ACTION BUTTONS */
+.btn-modern-group {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.btn-modern {
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+}
+
+.btn-meesho-primary {
+  background: var(--meesho-pink);
+  color: white;
+}
+
+.btn-meesho-primary:hover {
+  background: #e3365e;
+  box-shadow: 0 4px 10px rgba(255, 63, 108, 0.3);
+}
+
+.btn-meesho-outline {
+  background: white;
+  border: 1px solid var(--meesho-pink);
+  color: var(--meesho-pink);
+}
+
+.btn-meesho-outline:hover {
+  background: var(--meesho-light-pink);
+}
+
+.btn-danger-modern {
+  background: #fff5f5;
+  color: #d32f2f;
+  border: 1px solid #ffcdd2;
+}
+
+.btn-danger-modern:hover {
+  background: #ffebee;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .dashboard-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .profile-sidebar {
+    position: static;
+    margin-bottom: 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .profile-info-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .btn-modern-group {
+    flex-direction: column;
+  }
+}
+</style>
+
+<style>
+/* Tab visibility styles */
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+</style>
+
+{% block content %}
+<div class="profile-dashboard">
+  <div class="dashboard-container">
+    
+    <!-- LEFT SIDEBAR -->
+    <div class="profile-sidebar">
+      <div class="sidebar-user-info">
+        <div class="user-avatar-circle">
+          {{ user.email|slice:":1"|upper }}
+        </div>
+        <div class="sidebar-user-name" id="profile-username">{{ user.email|default:'User' }}</div>
+        <div class="sidebar-user-email">{{ user.email }}</div>
+      </div>
+      
+      <ul class="sidebar-menu">
+        <li>
+          <a href="#" onclick="showTab('profile'); return false;" class="{% if active_tab == 'profile' %}active{% endif %}" id="profile-tab">
+            <i class="fas fa-user"></i>
+            Profile Info
+          </a>
+        </li>
+        <li>
+          <a href="#" onclick="showTab('orders'); return false;" class="{% if active_tab == 'orders' %}active{% endif %}" id="orders-tab">
+            <i class="fas fa-box"></i>
+            My Orders
+          </a>
+        </li>
+        <li>
+          <a href="#" onclick="showTab('wishlist'); return false;" class="{% if active_tab == 'wishlist' %}active{% endif %}" id="wishlist-tab">
+            <i class="fas fa-heart"></i>
+            Wishlist
+          </a>
+        </li>
+        <li>
+          <a href="#" onclick="showTab('settings'); return false;" class="{% if active_tab == 'settings' %}active{% endif %}" id="settings-tab">
+            <i class="fas fa-cog"></i>
+            Settings
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'logout' %}" class="logout-link">
+            <i class="fas fa-sign-out-alt"></i>
+            Logout
+          </a>
+        </li>
+      </ul>
+    </div>
+    
+    <!-- RIGHT CONTENT AREA -->
+    <div class="content-area">
+      
+      {% if active_tab == 'orders' %}
+        <!-- ORDERS SECTION -->
+        <div id="orders" class="tab-content card">
+          <div class="card-header-modern">
+            <h2 class="card-title-modern">
+              <i class="fas fa-box" style="color: var(--meesho-pink);"></i>
+              My Orders
+            </h2>
+          </div>
+          <div class="card-body-modern">
+            <div class="order-list">
+              {% for order in orders %}
+              <div class="order-item-card">
+                <div class="order-main-info" style="flex: 1;">
+                  <div class="order-icon-bg">📦</div>
+                  <div style="flex: 1;">
+                    <div style="font-weight: 700; color: var(--text-dark); margin-bottom: 2px;">Order #{{ order.order_id|slice:":8" }}</div>
+                    <div style="font-size: 13px; color: var(--text-light); margin-bottom: 4px;">Placed on {{ order.created_at|date:"M d, Y" }}</div>
+                    <div style="font-size: 12px; color: var(--meesho-pink); font-weight: 600;">
+                      🔍 Tracking: <span style="font-family: monospace;">{{ order.tracking_id }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
+                  <div style="font-weight: 700; color: var(--meesho-pink);">₹{{ order.total_amount }}</div>
+                  <span class="order-status-badge {% if order.status == 'delivered' %}status-delivered{% elif order.status == 'cancelled' %}status-cancelled{% else %}status-pending{% endif %}">
+                    {{ order.status }}
+                  </span>
+                  <a href="{% url 'order_track' order.order_id %}" class="btn-modern" style="background: var(--meesho-pink); color: white; padding: 6px 12px; font-size: 12px; margin-top: 4px; text-decoration: none;">
+                    <i class="fas fa-map-marker-alt"></i> Track
+                  </a>
+                </div>
+              </div>
+              {% empty %}
+              <div style="text-align: center; padding: 40px 0;">
+                <div style="font-size: 50px; margin-bottom: 20px;">📦</div>
+                <h3 style="color: var(--text-dark); margin-bottom: 10px;">No orders yet</h3>
+                <p style="color: var(--text-light); margin-bottom: 20px;">When you place orders, they will appear here</p>
+                <a href="{% url 'shop' %}" class="btn-modern btn-meesho-primary">Start Shopping</a>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        
+      {% elif active_tab == 'wishlist' %}
+        <!-- WISHLIST SECTION -->
+        <div id="wishlist" class="tab-content card">
+          <div class="card-header-modern">
+            <h2 class="card-title-modern">
+              <i class="fas fa-heart" style="color: var(--meesho-pink);"></i>
+              My Wishlist
+            </h2>
+          </div>
+          <div class="card-body-modern">
+            <div class="profile-info-grid">
+              {% for product in wishlist_products %}
+              <div class="card" style="padding: 15px; display: flex; flex-direction: column; gap: 15px;">
+                <div style="display: flex; gap: 15px; align-items: center;">
+                  <img src="{{ product.image.url }}" alt="{{ product.name }}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 6px;">
+                  <div style="flex: 1;">
+                    <div style="font-weight: 700; color: var(--text-dark); margin-bottom: 4px;">{{ product.name }}</div>
+                    <div style="font-weight: 700; color: var(--meesho-pink);">₹{{ product.price }}</div>
+                  </div>
+                </div>
+                <div class="btn-modern-group">
+                  <a href="{% url 'add_to_cart' product.id %}" class="btn-modern btn-meesho-primary" style="flex: 1; justify-content: center;">
+                    <i class="fas fa-cart-plus"></i> Add to Cart
+                  </a>
+                  <a href="{% url 'remove_from_wishlist' product.id %}" class="btn-modern btn-danger-modern" style="padding: 10px;">
+                    <i class="fas fa-trash"></i>
+                  </a>
+                </div>
+              </div>
+              {% empty %}
+              <div style="grid-column: 1 / -1; text-align: center; padding: 40px 0;">
+                <div style="font-size: 50px; margin-bottom: 20px;">💔</div>
+                <h3 style="color: var(--text-dark); margin-bottom: 10px;">Your wishlist is empty</h3>
+                <p style="color: var(--text-light); margin-bottom: 20px;">Save items you love to see them here</p>
+                <a href="{% url 'shop' %}" class="btn-modern btn-meesho-primary">Explore Products</a>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        
+      {% elif active_tab == 'settings' %}
+        <!-- SETTINGS SECTION -->
+        <div id="settings" class="tab-content card">
+          <div class="card-header-modern">
+            <h2 class="card-title-modern">
+              <i class="fas fa-cog" style="color: var(--meesho-pink);"></i>
+              Account Settings
+            </h2>
+          </div>
+          <div class="card-body-modern">
+            <div class="btn-modern-group">
+              <button class="btn-modern btn-meesho-outline" onclick="alert('Password change feature coming soon!')">
+                <i class="fas fa-key"></i> Change Password
+              </button>
+              <button class="btn-modern btn-meesho-outline" onclick="alert('Email settings coming soon!')">
+                <i class="fas fa-envelope"></i> Email Settings
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- DELETE ACCOUNT SECTION -->
+        <div class="card" style="margin-top: 25px; border-color: #ffcdd2;">
+          <div class="card-header-modern" style="background: #fff5f5;">
+            <h2 class="card-title-modern" style="color: #d32f2f;">
+              <i class="fas fa-exclamation-triangle"></i> Danger Zone
+            </h2>
+          </div>
+          <div class="card-body-modern">
+            <p style="color: var(--text-light); font-size: 14px; margin-bottom: 20px;">
+              Once you delete your account, there is no going back. Please be certain.
+            </p>
+            <button class="btn-modern btn-danger-modern" onclick="confirmDeleteAccount()">
+              <i class="fas fa-trash-alt"></i> Delete My Account
+            </button>
+          </div>
+        </div>
+        
+      {% else %}
+        <!-- PROFILE INFO SECTION (DEFAULT) -->
+        <div id="profile" class="tab-content card">
+          <div class="card-header-modern">
+            <h2 class="card-title-modern">
+              <i class="fas fa-user" style="color: var(--meesho-pink);"></i>
+              Profile Information
+            </h2>
+          </div>
+          <div class="card-body-modern">
+            <div class="profile-info-grid">
+              <div class="info-box">
+                <span class="info-label-modern">Full Name</span>
+                <span class="info-value-modern" id="profile-username-full">{{ user.email|default:'User' }}</span>
+              </div>
+              <div class="info-box">
+                <span class="info-label-modern">Email Address</span>
+                <span class="info-value-modern">{{ user.email }}</span>
+              </div>
+              <div class="info-box">
+                <span class="info-label-modern">Account Type</span>
+                <span class="info-value-modern">Premium Customer</span>
+              </div>
+              <div class="info-box">
+                <span class="info-label-modern">Member Since</span>
+                <span class="info-value-modern">{{ user.date_joined|date:"M d, Y" }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- ACCOUNT ACTIONS -->
+        <div class="card">
+          <div class="card-header-modern">
+            <h2 class="card-title-modern">
+              <i class="fas fa-tools" style="color: var(--meesho-pink);"></i>
+              Account Actions
+            </h2>
+          </div>
+          <div class="card-body-modern">
+            <div class="btn-modern-group">
+              <button class="btn-modern btn-meesho-primary" onclick="alert('Profile editing coming soon!')">
+                <i class="fas fa-edit"></i> Edit Profile
+              </button>
+              <button class="btn-modern btn-meesho-outline" onclick="alert('Password change feature coming soon!')">
+                <i class="fas fa-key"></i> Change Password
+              </button>
+              <a href="{% url 'logout' %}" class="btn-modern btn-danger-modern">
+                <i class="fas fa-sign-out-alt"></i> Logout
+              </a>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<script>
+function confirmDeleteAccount() {
+  if (confirm('Are you sure you want to delete your account? This action is irreversible and all your data will be permanently removed.')) {
+    // You would typically redirect to a delete account view or submit a form
+    alert('Account deletion request received. Our team will process it shortly.');
+  }
+}
+
+// Extract username from email automatically
+document.addEventListener('DOMContentLoaded', function() {
+  const profileUsername = document.getElementById('profile-username');
+  const profileUsernameFull = document.getElementById('profile-username-full');
+  
+  if (profileUsername) {
+    const email = profileUsername.textContent;
+    if (email && email.includes('@') && email !== 'User') {
+      const username = email.split('@')[0];
+      profileUsername.textContent = username;
+    }
+  }
+  
+  if (profileUsernameFull) {
+    const email = profileUsernameFull.textContent;
+    if (email && email.includes('@') && email !== 'User') {
+      const username = email.split('@')[0];
+      profileUsernameFull.textContent = username;
+    }
+  }
+});
+
+function showTab(tabId) {
+    console.log("Switching to:", tabId); // debug
+
+    // Hide all tab content
+    document.querySelectorAll('.tab-content').forEach(el => {
+        el.classList.remove('active');
+    });
+
+    // Remove active class from all sidebar links
+    document.querySelectorAll('.sidebar-menu a').forEach(el => {
+        el.classList.remove('active');
+    });
+
+    // Show selected tab content
+    const activeTab = document.getElementById(tabId);
+    if (activeTab) {
+        activeTab.classList.add('active');
+        console.log("Tab content found and activated:", tabId);
+    } else {
+        console.log("Tab content not found:", tabId);
+    }
+
+    // Highlight selected sidebar item
+    const activeSidebar = document.getElementById(tabId + '-tab');
+    if (activeSidebar) {
+        activeSidebar.classList.add('active');
+        console.log("Sidebar item found and activated:", tabId + '-tab');
+    } else {
+        console.log("Sidebar item not found:", tabId + '-tab');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    showTab('profile');
+});
+</script>
+
+{% endblock %}

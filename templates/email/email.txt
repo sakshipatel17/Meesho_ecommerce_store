@@ -1,0 +1,15 @@
+Order Confirmation - {{ id }}
+
+Thank you for your order!
+
+Order Details:
+- Order ID: {{ id }}
+- Email: {{ email }}
+- Total Amount: {{ total }}
+- Payment Method: {{ method }}
+- Order Date: {{ date }}
+
+Shipping Address:
+{{ address }}
+
+We'll notify you once your order ships.

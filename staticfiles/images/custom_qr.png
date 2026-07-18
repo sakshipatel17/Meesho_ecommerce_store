@@ -1,0 +1,3 @@
+# Custom QR Code for UPI/Paytm Payments
+# This file contains the user's personal QR code for payment processing
+# Replaces the default generated QR codes in the payment system

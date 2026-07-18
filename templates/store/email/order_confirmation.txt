@@ -1,0 +1,45 @@
+ORDER CONFIRMATION
+==================
+
+Dear {{ customer_name }},
+
+Thank you for your order! We're excited to process your purchase.
+
+ORDER DETAILS
+--------------
+Order ID: {{ order_id }}
+{% if tracking_id %}Tracking Number: {{ tracking_id }}{% endif %}
+Order Date: {{ order_date }}
+Payment Method: {{ payment_method }}
+Status: {{ order.get_status_display }}
+
+PRODUCTS ORDERED
+----------------
+{% for product in products %}
+• {{ product.name }} - ₹{{ product.price }}
+{% endfor %}
+
+DELIVERY ADDRESS
+-----------------
+{{ delivery_address }}
+{% if order.phone %}
+Contact Number: {{ order.phone }}
+{% endif %}
+
+ORDER TOTAL
+------------
+Total Amount: ₹{{ total_amount }}
+{% if order.discount_amount %}
+Discount Applied: ₹{{ order.discount_amount }}
+{% endif %}
+
+WHAT'S NEXT?
+-------------
+• We're processing your order
+• You'll receive shipping confirmation soon
+• Track your order status in your dashboard
+
+Thank you for shopping with Meesho!
+
+Best regards,
+Team Meesho

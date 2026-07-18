@@ -1,0 +1,232 @@
+{% extends '../layout/base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+.order-confirmation {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.confirmation-card {
+    max-width: 500px;
+    width: 100%;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    overflow: hidden;
+    animation: slideUp 0.6s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.success-header {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    padding: 30px 20px;
+    text-align: center;
+}
+
+.success-icon {
+    width: 60px;
+    height: 60px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 15px;
+    font-size: 30px;
+}
+
+.order-details {
+    padding: 30px 20px;
+}
+
+.order-info {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.order-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.order-row:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.order-label {
+    color: #64748b;
+    font-weight: 500;
+}
+
+.order-value {
+    color: #1e293b;
+    font-weight: 600;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.btn-primary {
+    flex: 1;
+    min-width: 120px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    color: white;
+}
+
+.btn-secondary {
+    flex: 1;
+    min-width: 120px;
+    background: white;
+    color: #667eea;
+    border: 2px solid #667eea;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.btn-secondary:hover {
+    background: #667eea;
+    color: white;
+}
+
+.btn-outline {
+    flex: 1;
+    min-width: 120px;
+    background: white;
+    color: #667eea;
+    border: 2px solid #667eea;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 14px;
+}
+
+.btn-outline:hover {
+    background: #667eea;
+    color: white;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+}
+
+.tracking-number {
+    background: #f1f5f9;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    color: #475569;
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+</style>
+
+<div class="order-confirmation">
+    <div class="confirmation-card">
+        <!-- Success Header -->
+        <div class="success-header">
+            <div class="success-icon">
+                ✓
+            </div>
+            <h1 class="text-2xl font-bold mb-2">Order Confirmed!</h1>
+            <p class="text-base opacity-90">Thank you for your purchase</p>
+        </div>
+
+        <!-- Order Details -->
+        <div class="order-details">
+            <!-- Tracking Number -->
+            <div class="tracking-number">
+                Order ID: {{ order.order_id }}
+            </div>
+
+            <!-- Order Information -->
+            <div class="order-info">
+                <div class="order-row">
+                    <span class="order-label">Order Number</span>
+                    <span class="order-value">#{{ order.order_id }}</span>
+                </div>
+                <div class="order-row">
+                    <span class="order-label">Total Amount</span>
+                    <span class="order-value">₹{{ order.total_amount }}</span>
+                </div>
+                <div class="order-row">
+                    <span class="order-label">Payment Method</span>
+                    <span class="order-value">{{ order.payment_method|title }}</span>
+                </div>
+                <div class="order-row">
+                    <span class="order-label">Order Date</span>
+                    <span class="order-value">{{ order.created_at|date:"d M Y, h:i A" }}</span>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <a href="{% url 'order_track' order.order_id %}" class="btn-primary">
+                    <i class="fas fa-map-marked-alt"></i>
+                    Track Order
+                </a>
+                <a href="{% url 'order_details' %}" class="btn-secondary">
+                    <i class="fas fa-list"></i>
+                    View Orders
+                </a>
+                <a href="{% url 'shop' %}" class="btn-outline">
+                    <i class="fas fa-shopping-bag"></i>
+                    Continue Shopping
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,596 @@
+{% extends '../layout/base.html' %} {% block content %}
+{% load static %}
+{% csrf_token %}
+
+<div class="bg-gray-50 py-6 sm:py-8 lg:py-12 min-h-screen">
+  <div class="mx-auto max-w-7xl px-4 md:px-8">
+    <!-- Main Product Section -->
+    <div class="grid gap-8 md:grid-cols-12 bg-white rounded-xl shadow-sm p-4 md:p-8">
+      
+      <!-- 1️⃣ PRODUCT IMAGE SECTION (Left - 5 cols) -->
+      <div class="md:col-span-5 space-y-4">
+        <div class="relative overflow-hidden rounded-xl bg-gray-100 border border-gray-100 group">
+          <img
+            src="{{product.image.url}}"
+            loading="lazy"
+            alt="{{product.name}}"
+            id="main-image"
+            class="h-[30rem] w-full object-contain mix-blend-multiply transition-transform duration-500 group-hover:scale-110"
+          />
+          {% if product.in_stock <= 5 and product.in_stock > 0 %}
+          <div class="absolute top-4 left-4 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full uppercase tracking-wider animate-pulse">
+            Only {{product.in_stock}} left!
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Thumbnails -->
+        <div class="flex flex-wrap gap-3">
+          <div class="w-20 h-20 overflow-hidden rounded-lg bg-gray-50 border-2 border-secondary cursor-pointer hover:border-secondary transition-all thumbnail-wrapper active">
+            <img
+              onclick="setImage(event, this)"
+              src="{{product.image.url}}"
+              loading="lazy"
+              alt="{{product.name}}"
+              class="h-full w-full object-contain mix-blend-multiply product-images"
+            />
+          </div>
+          {% for item in product_images %}
+          <div class="w-20 h-20 overflow-hidden rounded-lg bg-gray-50 border-2 border-transparent cursor-pointer hover:border-secondary transition-all thumbnail-wrapper">
+            <img
+              onclick="setImage(event, this)"
+              src="{{item.image.url}}"
+              loading="lazy"
+              alt="{{product.name}}"
+              class="h-full w-full object-contain mix-blend-multiply product-images"
+            />
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- 2️⃣ PRODUCT INFORMATION SECTION (Right - 7 cols) -->
+      <div class="md:col-span-7 space-y-6">
+        <div>
+          <h1 class="text-2xl md:text-3xl font-bold text-gray-900 leading-tight mb-2">
+            {{product.name}}
+          </h1>
+          
+          <!-- Rating & Reviews -->
+          <div class="flex items-center gap-4">
+            <div class="flex flex-col">
+              <div class="flex items-center gap-1">
+                <div id="star-rating" class="flex items-center gap-1 text-gray-300 cursor-pointer text-xl">
+                  <i class="fas fa-star star-btn" data-value="1"></i>
+                  <i class="fas fa-star star-btn" data-value="2"></i>
+                  <i class="fas fa-star star-btn" data-value="3"></i>
+                  <i class="fas fa-star star-btn" data-value="4"></i>
+                  <i class="fas fa-star star-btn" data-value="5"></i>
+                </div>
+                {% if rating %}
+                <div class="flex items-center gap-1 bg-green-600 text-white px-2 py-0.5 rounded text-sm font-bold ml-2">
+                  <span id="avg-rating-display">{{rating|floatformat:1}}</span>
+                  <i class="fas fa-star text-[10px]"></i>
+                </div>
+                {% else %}
+                <div id="avg-rating-container" class="hidden flex items-center gap-1 bg-green-600 text-white px-2 py-0.5 rounded text-sm font-bold ml-2">
+                  <span id="avg-rating-display">0.0</span>
+                  <i class="fas fa-star text-[10px]"></i>
+                </div>
+                {% endif %}
+              </div>
+              <span id="total-ratings-display" class="text-gray-500 text-sm font-medium mt-1">
+                {% if rating %}{{review.count}}{% else %}0{% endif %} Ratings & Reviews
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <hr class="border-gray-100">
+
+        <!-- Price Section -->
+        <div class="space-y-1">
+          <div class="flex items-center gap-3">
+            <span class="text-3xl font-bold text-gray-900">&#8377;{{product.price}}</span>
+            {% if product.price > 500 %}
+            <span class="text-lg text-gray-400 line-through">&#8377;{{ product.price|add:200 }}</span>
+            <span class="text-green-600 font-bold text-lg">Save 15%</span>
+            {% endif %}
+          </div>
+          <p class="text-gray-500 text-xs font-medium uppercase tracking-wider">Inclusive of all taxes</p>
+        </div>
+
+        <!-- 3️⃣ OFFER / COUPON SECTION -->
+        <div class="bg-pink-50/50 rounded-xl p-5 border border-pink-100">
+          <div class="flex items-center gap-2 mb-4">
+            <i class="fas fa-gift text-pink-600"></i>
+            <h4 class="font-bold text-gray-900">Available Offers & Coupons</h4>
+          </div>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="bg-white p-3 rounded-lg border border-pink-100 relative group cursor-pointer" onclick="copyCoupon('FIRST10')">
+              <div class="flex items-start justify-between">
+                <div>
+                  <p class="text-xs font-bold text-pink-600 uppercase mb-1">FIRST10</p>
+                  <p class="text-sm text-gray-700 font-medium">10% off on first order</p>
+                </div>
+                <i class="far fa-copy text-gray-400 group-hover:text-pink-600 transition-colors"></i>
+              </div>
+            </div>
+            <div class="bg-white p-3 rounded-lg border border-pink-100 relative group cursor-pointer" onclick="copyCoupon('FLAT50')">
+              <div class="flex items-start justify-between">
+                <div>
+                  <p class="text-xs font-bold text-pink-600 uppercase mb-1">FLAT50</p>
+                  <p class="text-sm text-gray-700 font-medium">Flat ₹50 off</p>
+                </div>
+                <i class="far fa-copy text-gray-400 group-hover:text-pink-600 transition-colors"></i>
+              </div>
+            </div>
+          </div>
+          
+          <div id="coupon-notification" class="mt-3 text-xs text-green-600 font-bold hidden flex items-center gap-1">
+            <i class="fas fa-check-circle"></i>
+            <span id="coupon-text"></span>
+          </div>
+        </div>
+
+        <!-- 8️⃣ DELIVERY CHECK -->
+        <div class="space-y-3">
+          <h4 class="font-bold text-gray-900 flex items-center gap-2">
+            <i class="fas fa-map-marker-alt text-gray-400 text-sm"></i>
+            Check Delivery Details
+          </h4>
+          <div class="flex max-w-sm">
+            <input type="text" maxlength="6" placeholder="Enter Pincode" class="flex-1 border border-gray-200 rounded-l-lg px-4 py-2 text-sm focus:outline-none focus:border-secondary">
+            <button class="bg-gray-100 text-secondary font-bold px-6 py-2 rounded-r-lg border border-l-0 border-gray-200 hover:bg-gray-200 transition-colors text-sm">Check</button>
+          </div>
+        </div>
+
+        <!-- 4️⃣ ACTION BUTTONS -->
+        <div class="grid grid-cols-2 gap-4 pt-4">
+          <button onclick="addToCart('{{ product.id }}')" class="flex items-center justify-center gap-2 bg-white text-gray-900 border-2 border-gray-900 py-4 rounded-xl font-bold hover:bg-gray-50 transition-all" type="button">
+            <i class="fas fa-shopping-cart"></i>
+            ADD TO CART
+          </button>
+          <a href="{% url 'buy_now' product.id %}" class="flex items-center justify-center gap-2 bg-secondary text-white py-4 rounded-xl font-bold hover:bg-secondary/90 shadow-lg shadow-secondary/20 transition-all">
+            <i class="fas fa-bolt"></i>
+            BUY NOW
+          </a>
+        </div>
+
+        <!-- Wishlist Button -->
+        {% if user.is_authenticated %}
+        <div class="pt-2 text-center">
+            <a href="{% url 'add_to_wishlist' product.id %}" class="inline-flex items-center gap-2 text-sm font-bold {% if in_wishlist %}text-red-500{% else %}text-gray-500 hover:text-red-500{% endif %} transition-colors">
+                <i class="{% if in_wishlist %}fas{% else %}far{% endif %} fa-heart text-lg"></i>
+                {% if in_wishlist %}In Wishlist{% else %}Add to Wishlist{% endif %}
+            </a>
+        </div>
+        {% endif %}
+
+        <!-- 7️⃣ SELLER INFORMATION (Inside info section for Meesho-style) -->
+        <div class="border-t border-gray-100 pt-6 mt-6">
+          <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm text-secondary font-bold text-xl">
+                H
+              </div>
+              <div>
+                <p class="text-xs text-gray-500 font-medium">Sold By</p>
+                <h5 class="font-bold text-gray-900">Handy Collection</h5>
+              </div>
+            </div>
+            <div class="flex gap-4 border-l border-gray-200 pl-4">
+              <div class="text-center">
+                <p class="text-xs text-gray-500">Rating</p>
+                <p class="font-bold text-gray-900 flex items-center gap-1">4.3 <i class="fas fa-star text-[10px] text-green-600"></i></p>
+              </div>
+              <div class="text-center">
+                <p class="text-xs text-gray-500">Products</p>
+                <p class="font-bold text-gray-900">200+</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 5️⃣ PRODUCT DESCRIPTION SECTION -->
+    <div class="mt-8 grid gap-8 md:grid-cols-12">
+      <div class="md:col-span-8 bg-white rounded-xl shadow-sm p-6 md:p-8">
+        <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+            <i class="fas fa-info-circle text-gray-400"></i>
+            Product Details
+        </h3>
+        
+        <div class="grid grid-cols-2 gap-y-4 gap-x-8 mb-8">
+          <div>
+            <p class="text-sm text-gray-400 mb-1">Material</p>
+            <p class="font-medium text-gray-900">Premium Quality</p>
+          </div>
+          <div>
+            <p class="text-sm text-gray-400 mb-1">Color</p>
+            <p class="font-medium text-gray-900">As shown in image</p>
+          </div>
+          <div>
+            <p class="text-sm text-gray-400 mb-1">Weight</p>
+            <p class="font-medium text-gray-900">{{product.weight}} KG</p>
+          </div>
+          <div>
+            <p class="text-sm text-gray-400 mb-1">Length</p>
+            <p class="font-medium text-gray-900">{{product.length}} CM</p>
+          </div>
+        </div>
+
+        <hr class="border-gray-100 my-6">
+
+        <h4 class="font-bold text-gray-900 mb-4">Product Description</h4>
+        <div id="descriptionContainer" class="text-gray-700 prose prose-pink max-w-none text-sm leading-relaxed overflow-hidden transition-all duration-300 max-h-40 relative">
+          {{product.description|safe}}
+          <div id="descriptionOverlay" class="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-white to-transparent"></div>
+        </div>
+        <button id="readMoreButton" class="mt-4 text-secondary font-bold text-sm hover:underline">Read More</button>
+      </div>
+
+      <!-- 9️⃣ PRODUCT RATINGS & REVIEWS (Side block) -->
+      <div class="md:col-span-4 bg-white rounded-xl shadow-sm p-6 md:p-8">
+        <h3 class="text-xl font-bold text-gray-900 mb-6">Product Ratings</h3>
+        
+        {% if rating %}
+        <div class="flex items-center gap-6 mb-8">
+          <div class="text-center">
+            <div class="text-4xl font-bold text-gray-900 flex items-center justify-center gap-2">
+                {{rating|floatformat:1}}
+                <i class="fas fa-star text-green-600 text-2xl"></i>
+            </div>
+            <p class="text-sm text-gray-500 mt-1">{{review.count}} Ratings</p>
+          </div>
+          
+          <div class="flex-1 space-y-2">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold text-gray-600 w-4">5</span>
+              <div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                <div class="h-full bg-green-600 w-[70%]"></div>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold text-gray-600 w-4">4</span>
+              <div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                <div class="h-full bg-green-500 w-[20%]"></div>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold text-gray-600 w-4">3</span>
+              <div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                <div class="h-full bg-yellow-400 w-[5%]"></div>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold text-gray-600 w-4">2</span>
+              <div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                <div class="h-full bg-orange-500 w-[2%]"></div>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold text-gray-600 w-4">1</span>
+              <div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                <div class="h-full bg-red-500 w-[3%]"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% else %}
+        <div class="text-center py-10">
+            <i class="far fa-star text-gray-200 text-5xl mb-4"></i>
+            <p class="text-gray-400 font-medium text-sm">No reviews yet for this product.</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- 6️⃣ RELATED PRODUCTS SECTION -->
+    {% if related_products %}
+    <div class="mt-16">
+      <div class="flex items-center justify-between mb-8">
+        <h2 class="text-2xl font-bold text-gray-900">Similar Products</h2>
+        <a href="{% url 'shop' %}" class="text-secondary font-bold hover:underline">View All</a>
+      </div>
+      
+      <div class="grid gap-6 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
+        {% for item in related_products|slice:":4" %}
+        <div class="group bg-white rounded-xl shadow-sm hover:shadow-md transition-all overflow-hidden border border-gray-100">
+          <div class="relative h-64 overflow-hidden bg-gray-50">
+            <a href="{% url 'product' item.slug %}" class="block">
+              <img
+                class="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500"
+                src="{{item.image.url}}"
+                alt="{{item.name}}"
+              />
+            </a>
+          </div>
+          <div class="p-4">
+            <div class="min-h-[80px] flex flex-col justify-between">
+              <div>
+                <h5 class="text-sm font-medium text-gray-700 truncate mb-1">
+                  <a href="{% url 'product' item.slug %}" class="text-gray-700 hover:text-secondary no-underline">
+                    {{item.name}}
+                  </a>
+                </h5>
+                <div class="flex items-center gap-2">
+                  <span class="text-lg font-bold text-gray-900 no-underline">&#8377;{{item.price}}</span>
+                  {% if item.price > 500 %}
+                  <span class="text-xs text-gray-400 line-through no-underline">&#8377;{{item.price|add:100}}</span>
+                  <span class="text-xs text-green-600 font-bold no-underline">15% Off</span>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="mt-3">
+                <a href="{% url 'product' item.slug %}" class="add-to-cart-btn">
+                  VIEW DETAILS
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+  function setImage(e, element) {
+    const mainImage = document.getElementById("main-image");
+    mainImage.src = e.target.src;
+    
+    // Update thumbnail active state
+    document.querySelectorAll('.thumbnail-wrapper').forEach(wrapper => {
+        wrapper.classList.remove('border-secondary', 'active');
+        wrapper.classList.add('border-transparent');
+    });
+    element.parentElement.classList.add('border-secondary', 'active');
+    element.parentElement.classList.remove('border-transparent');
+  }
+
+  // Description Read More Logic
+  const descriptionContainer = document.getElementById("descriptionContainer");
+  const readMoreButton = document.getElementById("readMoreButton");
+  const descriptionOverlay = document.getElementById("descriptionOverlay");
+
+  if (descriptionContainer.scrollHeight <= 160) {
+    readMoreButton.style.display = "none";
+    descriptionOverlay.style.display = "none";
+    descriptionContainer.style.maxHeight = "none";
+  }
+
+  readMoreButton.addEventListener("click", function () {
+    if (descriptionContainer.style.maxHeight === "none") {
+      descriptionContainer.style.maxHeight = "160px";
+      descriptionOverlay.style.display = "block";
+      readMoreButton.textContent = "Read More";
+    } else {
+      descriptionContainer.style.maxHeight = "none";
+      descriptionOverlay.style.display = "none";
+      readMoreButton.textContent = "Read Less";
+    }
+
+  // Star Rating Interaction
+  document.addEventListener('DOMContentLoaded', function() {
+    const stars = document.querySelectorAll('.star-btn');
+    const starContainer = document.getElementById('star-rating');
+    let currentRating = 0;
+
+    function updateStars(rating, permanent = false) {
+      stars.forEach(star => {
+        const val = parseInt(star.getAttribute('data-value'));
+        if (val <= rating) {
+          star.classList.remove('text-gray-300');
+          star.classList.add('text-yellow-400');
+        } else {
+          star.classList.remove('text-yellow-400');
+          star.classList.add('text-gray-300');
+        }
+      });
+      if (permanent) currentRating = rating;
+    }
+
+    stars.forEach(star => {
+      star.addEventListener('mouseover', function() {
+        const val = parseInt(this.getAttribute('data-value'));
+        updateStars(val);
+      });
+
+      star.addEventListener('click', function() {
+        const val = parseInt(this.getAttribute('data-value'));
+        submitRating(val);
+      });
+    });
+
+    starContainer.addEventListener('mouseleave', function() {
+      updateStars(currentRating);
+    });
+
+    function submitRating(rating) {
+      {% if not user.is_authenticated %}
+        window.location.href = "{% url 'login' %}";
+        return;
+      {% endif %}
+
+      const formData = new FormData();
+      formData.append('rating', rating);
+      formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+      fetch("{% url 'rate_product' product.id %}", {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          updateStars(rating, true);
+          document.getElementById('avg-rating-display').textContent = data.avg_rating;
+          document.getElementById('total-ratings-display').textContent = `${data.total_ratings} Ratings & Reviews`;
+          
+          const container = document.getElementById('avg-rating-container');
+          if (container) container.classList.remove('hidden');
+          
+          // Also update the ratings distribution block if it exists
+          // For now, simple success message alert or toast could be added
+        } else {
+          alert(data.message);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while submitting your rating.');
+      });
+    }
+  });
+  });
+
+  // Copy coupon function
+  function copyCoupon(couponCode) {
+    navigator.clipboard.writeText(couponCode).then(function() {
+      const notification = document.getElementById('coupon-notification');
+      const couponText = document.getElementById('coupon-text');
+      
+      couponText.textContent = `Coupon "${couponCode}" copied!`;
+      notification.classList.remove('hidden');
+      
+      setTimeout(function() {
+        notification.classList.add('hidden');
+      }, 3000);
+    });
+  }
+</script>
+
+<style>
+    /* Custom Scrollbar for Related Products if needed on mobile */
+    .prose-pink :where(a):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+        color: #ff66c4;
+    }
+    .prose-pink :where(strong):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+        color: #1a1a1a;
+    }
+    
+    /* Add to Cart Button Styling for Similar Products */
+    .add-to-cart-btn {
+        background: linear-gradient(135deg, #ff66c4 0%, #ff3a8e 100%);
+        color: white;
+        border: none;
+        padding: 10px 12px;
+        border-radius: 6px;
+        font-weight: 600;
+        text-decoration: none;
+        display: block;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        font-size: 12px;
+    }
+
+    .add-to-cart-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(255, 102, 196, 0.4);
+        color: white;
+    }
+
+    .add-to-cart-btn:active {
+        transform: translateY(0);
+    }
+    
+    /* Remove underline from links in Similar Products */
+    .no-underline {
+        text-decoration: none !important;
+    }
+    
+    .no-underline:hover {
+        text-decoration: none !important;
+    }
+</style>
+
+<script>
+// Add to Cart function
+function addToCart(productId) {
+  event.preventDefault();
+  
+  // Get CSRF token
+  const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+  
+  // Show loading state
+  const button = event.target;
+  const originalText = button.textContent;
+  button.textContent = 'Adding...';
+  button.disabled = true;
+  
+  // Send AJAX request
+  fetch(`/add-to-cart/${productId}/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrfToken,
+      'X-Requested-With': 'XMLHttpRequest'
+    },
+    credentials: 'same-origin'
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      button.textContent = 'Added!';
+      button.style.backgroundColor = '#28a745';
+      
+      // Update cart count if element exists
+      const cartCount = document.querySelector('.cart-count');
+      if (cartCount) {
+        cartCount.textContent = data.cart_count || '0';
+      }
+      
+      // Show success message
+      showMessage('Product added to cart!', 'success');
+      
+      // Reset button after 2 seconds
+      setTimeout(() => {
+        button.textContent = originalText;
+        button.style.backgroundColor = '';
+        button.disabled = false;
+      }, 2000);
+    } else {
+      throw new Error(data.message || 'Failed to add to cart');
+    }
+  })
+  .catch(error => {
+    console.error('Error adding to cart:', error);
+    button.textContent = originalText;
+    button.disabled = false;
+    showMessage('Failed to add to cart. Please try again.', 'error');
+  });
+}
+
+// Show message function
+function showMessage(message, type) {
+  // Create message element
+  const messageEl = document.createElement('div');
+  messageEl.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show position-fixed`;
+  messageEl.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+  messageEl.innerHTML = `
+    ${message}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  `;
+  
+  // Add to page
+  document.body.appendChild(messageEl);
+  
+  // Auto remove after 3 seconds
+  setTimeout(() => {
+    if (messageEl.parentNode) {
+      messageEl.parentNode.removeChild(messageEl);
+    }
+  }, 3000);
+}
+</script>
+{% endblock content %}

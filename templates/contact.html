@@ -1,0 +1,366 @@
+{% extends 'layout/base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+/* Contact page specific styles */
+.contact-page {
+    background: #f8f9fa;
+    min-height: 100vh;
+    padding-top: 80px;
+    padding-bottom: 40px;
+}
+
+.contact-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.contact-header {
+    text-align: center;
+    margin-bottom: 48px;
+}
+
+.contact-header h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 16px;
+}
+
+.contact-header p {
+    font-size: 1.25rem;
+    color: #6b7280;
+}
+
+.contact-form-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 48px;
+    margin-bottom: 48px;
+}
+
+.form-group {
+    margin-bottom: 24px;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 8px;
+}
+
+.form-input,
+.form-textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-textarea {
+    resize: none;
+    min-height: 120px;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 32px;
+}
+
+.submit-btn {
+    background: linear-gradient(135deg, #ff66c4 0%, #ff3a8e 100%);
+    color: white;
+    border: none;
+    padding: 12px 32px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 102, 196, 0.4);
+    color: white;
+}
+
+.alert {
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.alert-success {
+    background: #f0fdf4;
+    border: 1px solid #86efac;
+    color: #166534;
+}
+
+.alert-error {
+    background: #fef2f2;
+    border: 1px solid #fca5a5;
+    color: #991b1b;
+}
+
+.alert-icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.support-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+    margin-bottom: 48px;
+}
+
+.support-card {
+    background: white;
+    border-radius: 12px;
+    padding: 32px 24px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.support-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.support-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+}
+
+.support-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 8px;
+}
+
+.support-text {
+    color: #6b7280;
+    font-size: 1rem;
+    margin-bottom: 4px;
+}
+
+.support-note {
+    color: #9ca3af;
+    font-size: 0.875rem;
+}
+
+.bottom-links {
+    text-align: center;
+    padding: 32px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.bottom-links p {
+    color: #6b7280;
+    margin-bottom: 20px;
+    font-size: 1rem;
+}
+
+.link-group {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.link-group a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.link-group a:hover {
+    color: #5a67d8;
+    text-decoration: underline;
+}
+
+.link-separator {
+    color: #d1d5db;
+    font-weight: 400;
+}
+
+@media (max-width: 768px) {
+    .contact-header h1 {
+        font-size: 2rem;
+    }
+    
+    .contact-form-card {
+        padding: 32px 24px;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+        gap: 16px;
+        align-items: stretch;
+    }
+    
+    .submit-btn {
+        width: 100%;
+        text-align: center;
+    }
+    
+    .support-options {
+        grid-template-columns: 1fr;
+    }
+    
+    .link-group {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .link-separator {
+        display: none;
+    }
+}
+</style>
+
+<div class="contact-page">
+    <div class="contact-container">
+        <!-- Header -->
+        <div class="contact-header">
+            <h1>Contact Support</h1>
+            <p>We're here to help you!</p>
+        </div>
+
+        <!-- Contact Form -->
+        <div class="contact-form-card">
+            {% if success %}
+                <div class="alert alert-success">
+                    <div class="alert-icon">✓</div>
+                    <div>
+                        <strong>Success!</strong> Your message has been sent successfully. We'll get back to you soon!
+                    </div>
+                </div>
+            {% endif %}
+
+            {% if error %}
+                <div class="alert alert-error">
+                    <div class="alert-icon">✕</div>
+                    <div>
+                        <strong>Error!</strong> Please fill in all required fields.
+                    </div>
+                </div>
+            {% endif %}
+
+            <form method="POST" action="{% url 'contact' %}">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="name" class="form-label">
+                        Your Name <span style="color: #ef4444;">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="name" 
+                        name="name" 
+                        required
+                        class="form-input"
+                        placeholder="Enter your full name"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="email" class="form-label">
+                        Email Address <span style="color: #ef4444;">*</span>
+                    </label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        required
+                        class="form-input"
+                        placeholder="your.email@example.com"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="message" class="form-label">
+                        Message <span style="color: #ef4444;">*</span>
+                    </label>
+                    <textarea 
+                        id="message" 
+                        name="message" 
+                        rows="6" 
+                        required
+                        class="form-textarea"
+                        placeholder="Tell us how we can help you..."
+                    ></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="submit-btn">
+                        Submit
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Support Options -->
+        <div class="support-options">
+            <div class="support-card">
+                <div class="support-icon">📧</div>
+                <h3 class="support-title">Email Support</h3>
+                <p class="support-text">support@meesho.com</p>
+                <p class="support-note">24-48 hour response time</p>
+            </div>
+            <div class="support-card">
+                <div class="support-icon">💬</div>
+                <h3 class="support-title">Live Chat</h3>
+                <p class="support-text">Available 9 AM - 9 PM</p>
+                <p class="support-note">Instant responses</p>
+            </div>
+            <div class="support-card">
+                <div class="support-icon">📞</div>
+                <h3 class="support-title">Phone Support</h3>
+                <p class="support-text">1-800-MEESHO</p>
+                <p class="support-note">Mon-Sat, 9 AM - 6 PM</p>
+            </div>
+        </div>
+
+        <!-- Bottom Links -->
+        <div class="bottom-links">
+            <p>Looking for something else?</p>
+            <div class="link-group">
+                <a href="{% url 'about' %}">About Us</a>
+                <span class="link-separator">|</span>
+                <a href="{% url 'shop' %}">Shop Now</a>
+                <span class="link-separator">|</span>
+                <a href="{% url 'dashboard' %}">My Account</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

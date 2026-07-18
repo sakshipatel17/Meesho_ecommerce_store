@@ -1,0 +1,357 @@
+{% extends 'layout/base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+/* About page specific styles to override any shop-related styles */
+.about-page {
+    background: #f8f9fa;
+    min-height: 100vh;
+    padding-top: 80px;
+    padding-bottom: 40px;
+}
+
+.about-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.about-content {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.about-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 60px 40px;
+    text-align: center;
+}
+
+.about-header h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+.about-header p {
+    font-size: 1.25rem;
+    opacity: 0.9;
+}
+
+.about-body {
+    padding: 60px 40px;
+}
+
+.about-section {
+    margin-bottom: 60px;
+}
+
+.about-section h2 {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 24px;
+}
+
+.about-section p {
+    font-size: 1.125rem;
+    line-height: 1.7;
+    color: #4b5563;
+    margin-bottom: 20px;
+}
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.feature-card {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 30px;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.feature-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+}
+
+.feature-card h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 12px;
+}
+
+.feature-card p {
+    color: #6b7280;
+    font-size: 1rem;
+}
+
+.benefit-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 24px;
+    margin-top: 40px;
+}
+
+.benefit-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.benefit-icon {
+    color: #10b981;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.benefit-content h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 8px;
+}
+
+.benefit-content p {
+    color: #6b7280;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.cta-section {
+    background: #f3f4f6;
+    border-radius: 12px;
+    padding: 40px;
+    text-align: center;
+}
+
+.cta-section h2 {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 16px;
+}
+
+.cta-section p {
+    color: #6b7280;
+    margin-bottom: 32px;
+}
+
+.cta-buttons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.cta-btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.cta-btn-primary {
+    background: #667eea;
+    color: white;
+}
+
+.cta-btn-primary:hover {
+    background: #5a67d8;
+    color: white;
+}
+
+.cta-btn-secondary {
+    background: #6b7280;
+    color: white;
+}
+
+.cta-btn-secondary:hover {
+    background: #4b5563;
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .about-header {
+        padding: 40px 20px;
+    }
+    
+    .about-header h1 {
+        font-size: 2rem;
+    }
+    
+    .about-body {
+        padding: 40px 20px;
+    }
+    
+    .about-section h2 {
+        font-size: 1.5rem;
+    }
+    
+    .feature-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .benefit-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .cta-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .cta-btn {
+        width: 100%;
+        max-width: 300px;
+        justify-content: center;
+    }
+}
+
+/* Hide any potential shop-related elements on about page */
+.about-page .product-filters,
+.about-page .category-bar,
+.about-page .product-cards,
+.about-page .sidebar,
+.about-page .filter-section {
+    display: none !important;
+}
+</style>
+
+<div class="about-page">
+    <div class="about-container">
+        <div class="about-content">
+            <!-- Header Section -->
+            <div class="about-header">
+                <h1>About Us</h1>
+                <p>Your Trusted E-Commerce Partner</p>
+            </div>
+
+            <!-- Body Content -->
+            <div class="about-body">
+                <!-- Our Story & Mission -->
+                <div class="about-section">
+                    <div class="grid md:grid-cols-2 gap-12">
+                        <div>
+                            <h2>Our Story</h2>
+                            <p>
+                                We are a leading e-commerce platform dedicated to providing you with the best shopping experience. 
+                                Founded with the mission to make quality products accessible to everyone, we've grown to serve 
+                                thousands of happy customers across the country.
+                            </p>
+                            <p>
+                                Our journey began with a simple vision: to create a platform where customers can find 
+                                high-quality products at competitive prices, backed by exceptional customer service.
+                            </p>
+                        </div>
+                        <div>
+                            <h2>Our Mission</h2>
+                            <p>
+                                To provide exceptional value, quality products, and outstanding customer service. 
+                                We believe everyone deserves access to affordable, high-quality products without compromising on style or functionality.
+                            </p>
+                            <p>
+                                We strive to make online shopping simple, secure, and enjoyable for every customer, 
+                                ensuring that each purchase is a positive experience from start to finish.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- What We Offer -->
+                <div class="about-section">
+                    <h2>What We Offer</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">🛍️</div>
+                            <h3>Quality Products</h3>
+                            <p>Curated selection of high-quality items from trusted brands and sellers.</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">💰</div>
+                            <h3>Best Prices</h3>
+                            <p>Competitive pricing and great deals to ensure you get the best value for your money.</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">🚚</div>
+                            <h3>Fast Delivery</h3>
+                            <p>Quick and reliable shipping to get your products to you in the shortest time.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Why Choose Us -->
+                <div class="about-section">
+                    <h2>Why Choose Us?</h2>
+                    <div class="benefit-grid">
+                        <div class="benefit-item">
+                            <div class="benefit-icon">✓</div>
+                            <div class="benefit-content">
+                                <h3>100% Authentic Products</h3>
+                                <p>All products are verified and authentic, ensuring you receive genuine items every time.</p>
+                            </div>
+                        </div>
+                        <div class="benefit-item">
+                            <div class="benefit-icon">✓</div>
+                            <div class="benefit-content">
+                                <h3>Secure Shopping</h3>
+                                <p>Safe and secure payment options with multiple payment methods to choose from.</p>
+                            </div>
+                        </div>
+                        <div class="benefit-item">
+                            <div class="benefit-icon">✓</div>
+                            <div class="benefit-content">
+                                <h3>Easy Returns</h3>
+                                <p>Hassle-free return policy with simple and straightforward return processes.</p>
+                            </div>
+                        </div>
+                        <div class="benefit-item">
+                            <div class="benefit-icon">✓</div>
+                            <div class="benefit-content">
+                                <h3>24/7 Support</h3>
+                                <p>Round-the-clock customer assistance to help you with any queries or concerns.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Call to Action -->
+                <div class="cta-section">
+                    <h2>Get In Touch</h2>
+                    <p>Have questions? We'd love to hear from you!</p>
+                    <div class="cta-buttons">
+                        <a href="{% url 'contact' %}" class="cta-btn cta-btn-primary">
+                            <i class="fas fa-envelope"></i>
+                            Contact Us
+                        </a>
+                        <a href="{% url 'shop' %}" class="cta-btn cta-btn-secondary">
+                            <i class="fas fa-shopping-bag"></i>
+                            Start Shopping
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

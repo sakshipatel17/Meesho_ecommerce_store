@@ -1,0 +1,393 @@
+{% extends '../layout/auth_base.html' %}
+{% load socialaccount %}
+
+{% block content %}
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  .auth-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px;
+  }
+
+  .auth-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 420px;
+    padding: 40px;
+    animation: slideUp 0.5s ease-out;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .auth-header {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+
+  .auth-header h1 {
+    font-size: 28px;
+    color: #333;
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+
+  .auth-header p {
+    color: #666;
+    font-size: 14px;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #333;
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .form-group input {
+    width: 100%;
+    padding: 12px 40px 12px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    background: #f9f9f9;
+  }
+
+  .form-group input:focus {
+    outline: none;
+    border-color: #667eea;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+
+  .input-icon {
+    position: absolute;
+    right: 12px;
+    color: #999;
+    font-size: 18px;
+  }
+
+  .password-toggle-icon {
+    cursor: pointer;
+    transition: color 0.2s ease;
+    user-select: none;
+  }
+
+  .password-toggle-icon:hover {
+    color: #667eea;
+  }
+
+  .input-wrapper:hover .password-toggle-icon {
+    color: #667eea;
+  }
+
+  .form-group input::placeholder {
+    color: #999;
+  }
+
+  .signup-btn {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 20px;
+  }
+
+  .signup-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+  }
+
+  .signup-btn:active {
+    transform: translateY(0);
+  }
+
+  .divider {
+    text-align: center;
+    margin: 20px 0;
+    position: relative;
+  }
+
+  .divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #e0e0e0;
+  }
+
+  .divider span {
+    background: white;
+    padding: 0 12px;
+    color: #999;
+    font-size: 14px;
+    position: relative;
+  }
+
+  .google-btn {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    background: white;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .google-btn:hover {
+    border-color: #667eea;
+    background: #f9f9f9;
+  }
+
+  .auth-footer {
+    text-align: center;
+    color: #666;
+    font-size: 14px;
+  }
+
+  .auth-footer a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+  }
+
+  .auth-footer a:hover {
+    color: #764ba2;
+  }
+
+  /* Error Messages */
+  .error-message {
+    background: #fee;
+    color: #c33;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    border-left: 4px solid #c33;
+  }
+
+  .error-message li {
+    list-style: none;
+    margin: 4px 0;
+  }
+
+  .form-group .error-text {
+    color: #c33;
+    font-size: 12px;
+    margin-top: 6px;
+  }
+
+  @media (max-width: 480px) {
+    .auth-card {
+      padding: 30px 20px;
+    }
+
+    .auth-header h1 {
+      font-size: 24px;
+    }
+  }
+</style>
+
+<div class="auth-container">
+  <div class="auth-card">
+    <!-- Header -->
+    <div class="auth-header">
+      <h1>Create Account</h1>
+      <p>Join us and start shopping today</p>
+    </div>
+
+    <!-- Error Messages -->
+    {% if messages %}
+    {% for message in messages %}
+      {% if message.tags %}
+      <div class="error-message">
+        {{ message }}
+      </div>
+      {% endif %}
+    {% endfor %}
+    {% endif %}
+
+    <!-- Form Errors -->
+    {% if form.non_field_errors %}
+    <div class="error-message">
+      {% for error in form.non_field_errors %}
+        <div>{{ error }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Signup Form -->
+    <form method="POST" class="auth-form">
+      {% csrf_token %}
+
+      <!-- Email Field -->
+      <div class="form-group">
+        <label for="id_email">Email Address</label>
+        <div class="input-wrapper">
+          <input
+            type="email"
+            name="email"
+            id="id_email"
+            placeholder="Enter your email"
+            required
+            value="{{ request.POST.email|default:'' }}"
+          />
+          <span class="input-icon">📧</span>
+        </div>
+      </div>
+
+      <!-- Password Field -->
+      <div class="form-group">
+        <label for="id_password">Password</label>
+        <div class="input-wrapper">
+          <input
+            type="password"
+            name="password"
+            id="id_password"
+            placeholder="Create a password"
+            required
+          />
+          <span
+            class="input-icon password-toggle-icon"
+            id="toggle_id_password"
+            onclick="togglePassword('id_password')"
+            title="Show/Hide Password"
+          >
+            👁️
+          </span>
+        </div>
+        <div class="password-requirements">
+          Must be at least 8 characters long
+        </div>
+      </div>
+
+      <!-- Confirm Password Field -->
+      <div class="form-group">
+        <label for="id_confirm_password">Confirm Password</label>
+        <div class="input-wrapper">
+          <input
+            type="password"
+            name="confirm-password"
+            id="id_confirm_password"
+            placeholder="Confirm your password"
+            required
+          />
+          <span
+            class="input-icon password-toggle-icon"
+            id="toggle_id_confirm_password"
+            onclick="togglePassword('id_confirm_password')"
+            title="Show/Hide Password"
+          >
+            👁️
+          </span>
+        </div>
+      </div>
+
+      <!-- Signup Button -->
+      <button type="submit" class="signup-btn">
+        Sign Up
+      </button>
+    </form>
+
+    <!-- Divider -->
+    <div class="divider">
+      <span>OR</span>
+    </div>
+
+    <!-- Google Signup -->
+    <a href="{% provider_login_url 'google' %}" class="google-btn">
+      <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" width="20" height="20" />
+      Sign up with Google
+    </a>
+
+    <!-- Login Link -->
+    <div class="auth-footer">
+      Already have an account?
+      <a href="{% url 'login' %}">Sign in here</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  function togglePassword(fieldId) {
+    const field = document.getElementById(fieldId);
+    const iconElement = document.getElementById('toggle_' + fieldId);
+    
+    if (field.type === 'password') {
+      field.type = 'text';
+      if (iconElement) {
+        iconElement.textContent = '👁️‍🗨️';
+      }
+    } else {
+      field.type = 'password';
+      if (iconElement) {
+        iconElement.textContent = '👁️';
+      }
+    }
+  }
+  
+  // Client-side password validation
+  document.querySelector('form').addEventListener('submit', function(e) {
+    const password = document.getElementById('id_password').value;
+    const confirmPassword = document.getElementById('id_confirm_password').value;
+    
+    if (password !== confirmPassword) {
+      e.preventDefault();
+      alert('Passwords do not match!');
+      return false;
+    }
+    
+    if (password.length < 8) {
+      e.preventDefault();
+      alert('Password must be at least 8 characters long!');
+      return false;
+    }
+  });
+</script>
+{% endblock content %}

@@ -1,0 +1,151 @@
+{% extends "emails/base_myntra.html" %}
+
+{% block email_content %}
+<div class="container">
+    <div class="header">
+        <h1>✅ Order Placed Successfully!</h1>
+        <p>We're excited to send you this order</p>
+    </div>
+    
+    <div class="content">
+        <p>Hi {{ customer_name }},</p>
+        
+        <p>Thank you for your order! We've received and confirmed your order. Your items will be dispatched soon.</p>
+        
+        <!-- Tracking Section -->
+        <div class="tracking-section">
+            <p style="margin: 0 0 10px; font-size: 14px;">Tracking ID</p>
+            <div class="tracking-id">{{ tracking_id }}</div>
+            <p style="margin: 10px 0 0; font-size: 12px; opacity: 0.9;">Save this ID to track your order</p>
+        </div>
+        
+        <!-- Order Info -->
+        <div class="order-info">
+            <div class="order-info-row">
+                <span class="order-info-label">Order ID:</span>
+                <span class="order-info-value">#{{ order_id }}</span>
+            </div>
+            <div class="order-info-row">
+                <span class="order-info-label">Order Date:</span>
+                <span class="order-info-value">{{ order.created_at|date:"d M, Y" }}</span>
+            </div>
+            <div class="order-info-row">
+                <span class="order-info-label">Estimated Delivery:</span>
+                <span class="order-info-value">Within 5-7 Days</span>
+            </div>
+            <div class="order-info-row">
+                <span class="order-info-label">Payment Method:</span>
+                <span class="order-info-value">{{ payment_method }}</span>
+            </div>
+        </div>
+        
+        <!-- Timeline -->
+        <h3 style="margin: 25px 0 15px; color: #333; font-size: 16px;">Order Timeline</h3>
+        <div class="timeline">
+            <div class="timeline-step current">
+                <div class="timeline-dot">✓</div>
+                <div class="timeline-content">
+                    <div class="timeline-label">Order Placed</div>
+                    <div class="timeline-date">{{ order.created_at|date:"d M, Y \a\t H:i" }}</div>
+                </div>
+            </div>
+            <div class="timeline-step">
+                <div class="timeline-dot">2</div>
+                <div class="timeline-content">
+                    <div class="timeline-label">Processing</div>
+                    <div class="timeline-date">Expected within 24 hours</div>
+                </div>
+            </div>
+            <div class="timeline-step">
+                <div class="timeline-dot">3</div>
+                <div class="timeline-content">
+                    <div class="timeline-label">Dispatched</div>
+                    <div class="timeline-date">You'll receive tracking updates</div>
+                </div>
+            </div>
+            <div class="timeline-step">
+                <div class="timeline-dot">4</div>
+                <div class="timeline-content">
+                    <div class="timeline-label">Out for Delivery</div>
+                    <div class="timeline-date">Real-time notification</div>
+                </div>
+            </div>
+            <div class="timeline-step">
+                <div class="timeline-dot">5</div>
+                <div class="timeline-content">
+                    <div class="timeline-label">Delivered</div>
+                    <div class="timeline-date">Confirmation email sent</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Products -->
+        <h3 style="margin: 25px 0 15px; color: #333; font-size: 16px;">Order Items</h3>
+        <div class="products">
+            {% for product in products %}
+            <div class="product-item">
+                <div class="product-image">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                    {% else %}
+                        <div style="width: 100%; height: 100%; background-color: #ddd; display: flex; align-items: center; justify-content: center; color: #999;">No Image</div>
+                    {% endif %}
+                </div>
+                <div class="product-details">
+                    <p class="product-name">{{ product.name }}</p>
+                    <p class="product-price">₹{{ product.price }}</p>
+                    <p class="product-qty">Qty: 1</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Summary -->
+        <div class="summary">
+            <div class="summary-row">
+                <span class="summary-label">Subtotal:</span>
+                <span class="summary-value">₹{{ order.total_amount }}</span>
+            </div>
+            {% if discount_amount > 0 %}
+            <div class="summary-row">
+                <span class="summary-label">Discount:</span>
+                <span class="summary-value" style="color: #4caf50;">-₹{{ discount_amount }}</span>
+            </div>
+            {% endif %}
+            <div class="summary-row">
+                <span class="summary-label">Shipping:</span>
+                <span class="summary-value">FREE</span>
+            </div>
+            <div class="summary-row total">
+                <span class="summary-label">Total Amount:</span>
+                <span class="summary-value" style="color: #ff6b6b;">₹{{ order.total_amount }}</span>
+            </div>
+        </div>
+        
+        <!-- Delivery Address -->
+        <h3 style="margin: 25px 0 15px; color: #333; font-size: 16px;">Delivery Address</h3>
+        <div class="address-box">
+            <h3>{{ order.name }}</h3>
+            <p>
+                {{ order.address }}<br>
+                {{ order.city }}, {{ order.state }} {{ order.pincode }}<br>
+                Mobile: {{ order.phone }}
+            </p>
+        </div>
+        
+        <!-- CTA Button -->
+        <a href="#" class="cta-button">Track Your Order</a>
+        
+        <!-- Alert -->
+        <div class="alert alert-info">
+            <strong>Want to modify or cancel?</strong> You can modify your order within the next 30 minutes. After that, your items will be prepared for dispatch.
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p><strong>Need Help?</strong></p>
+        <p>Contact our customer support team if you have any questions.</p>
+        <p style="margin-top: 15px; border-top: 1px solid #333; padding-top: 15px;">© 2024 Your E-Commerce Store. All rights reserved.</p>
+    </div>
+</div>
+{% endblock %}

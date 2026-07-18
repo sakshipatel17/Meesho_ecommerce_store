@@ -1,0 +1,20 @@
+ORDER STATUS UPDATE
+==================
+
+Dear {{ customer_name }},
+
+{{ message }}
+
+ORDER DETAILS
+--------------
+Order ID: {{ order_id }}
+{% if tracking_id %}Tracking ID: {{ tracking_id }}{% endif %}
+Order Date: {{ order_date }}
+Current Status: {{ status_display }}
+
+{{ emoji }} Status: {{ status_display }}
+
+Thank you for shopping with Meesho!
+
+Best regards,
+Team Meesho

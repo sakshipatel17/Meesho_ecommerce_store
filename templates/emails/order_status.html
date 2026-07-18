@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      body { font-family: Arial, sans-serif; color: #333; }
+      .card { max-width: 600px; margin: 0 auto; padding: 20px; border-radius: 8px; background: #fff; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+      .header { background: linear-gradient(90deg,#667eea,#764ba2); color: white; padding: 12px; border-radius: 6px; text-align: center; }
+      .content { padding: 16px; }
+      .footer { color: #777; font-size: 12px; padding-top: 10px; }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="header">
+        <h2>{{ subject|default:"Order Update" }}</h2>
+      </div>
+      <div class="content">
+        <p>Hi {{ user.name|default:user.email }},</p>
+        <p>{{ message }}</p>
+        <p><strong>Order ID:</strong> {{ order.order_id }}</p>
+      </div>
+      <div class="footer">
+        <p>Thanks,<br/>The Team</p>
+      </div>
+    </div>
+  </body>
+</html>

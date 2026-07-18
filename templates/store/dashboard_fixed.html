@@ -1,0 +1,673 @@
+{% extends '../layout/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="myntra-container">
+    <!-- Sidebar -->
+    <div class="myntra-sidebar">
+        <div class="sidebar-header">
+            <h3>{{ request.user.username|default:"Guest User" }}</h3>
+            <p>{{ request.user.email|default:"guest@example.com" }}</p>
+        </div>
+        
+        <ul class="sidebar-menu">
+            <li>
+                <a href="#" onclick="showSection('profile-section'); return false;" class="sidebar-item active">
+                    <i class="fas fa-user sidebar-icon"></i>
+                    Profile Info
+                </a>
+            </li>
+            <li>
+                <a href="#" onclick="showSection('orders-section'); return false;" class="sidebar-item">
+                    <i class="fas fa-shopping-bag sidebar-icon"></i>
+                    My Orders
+                </a>
+            </li>
+            <li>
+                <a href="#" onclick="showSection('wishlist-section'); return false;" class="sidebar-item">
+                    <i class="fas fa-heart sidebar-icon"></i>
+                    Wishlist
+                </a>
+            </li>
+            <li>
+                <a href="#" onclick="showSection('settings-section'); return false;" class="sidebar-item">
+                    <i class="fas fa-cog sidebar-icon"></i>
+                    Settings
+                </a>
+            </li>
+            <li>
+                <a href="/logout" class="sidebar-item" style="color: #ff3e6c;">
+                    <i class="fas fa-sign-out-alt sidebar-icon"></i>
+                    Logout
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="myntra-content">
+        <!-- Profile Section -->
+        <div id="profile-section" class="section" style="display:block;">
+            <div class="content-header">
+                <h1>Profile Information</h1>
+                <p>Manage your personal information and account details</p>
+            </div>
+
+            <div class="profile-card">
+                <div class="profile-header">
+                    <div class="profile-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="profile-info">
+                        <h2>{{ request.user.username|default:"Guest User" }}</h2>
+                        <p>{{ request.user.email|default:"guest@example.com" }}</p>
+                        <a href="{% url 'edit_profile' %}" class="edit-btn" style="text-decoration: none; display: inline-block;">
+                            <i class="fas fa-edit"></i> EDIT
+                        </a>
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-label">Full Name</div>
+                    <div class="info-value">{{ request.user.username|default:"Guest User" }}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Email Address</div>
+                    <div class="info-value">{{ request.user.email|default:"guest@example.com" }}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Phone Number</div>
+                    <div class="info-value">+91 98765 43210</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Gender</div>
+                    <div class="info-value">Not Specified</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Date of Birth</div>
+                    <div class="info-value">Not Specified</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Section -->
+        <div id="orders-section" class="section" style="display:none;">
+            <div class="content-header">
+                <h1>Orders & Returns</h1>
+                <p>Track your orders and manage returns</p>
+            </div>
+
+            <div class="orders-grid">
+                {% for order in orders %}
+                    <div class="order-card">
+                        <div class="order-image">
+                            {% if order.products.exists %}
+                                {% for product in order.products.all %}
+                                    {% if forloop.first %}
+                                        {% if product.image %}
+                                            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover rounded-lg">
+                                        {% elif product.productimage_set.exists %}
+                                            {% for img in product.productimage_set.all %}
+                                                {% if forloop.first %}
+                                                    <img src="{{ img.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover rounded-lg">
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% else %}
+                                            <img src="/static/images/default-product.png" alt="{{ product.name }}" class="w-full h-full object-cover rounded-lg">
+                                        {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                <img src="/static/images/default-product.png" alt="Product" class="w-full h-full object-cover rounded-lg">
+                            {% endif %}
+                        </div>
+                        <div class="order-details">
+                            <div class="order-name">{{ order.products.first.name }}</div>
+                            <div class="order-status status-{{ order.status }}">{{ order.get_status_display }}</div>
+                            <div style="font-size: 12px; color: #535665; margin-top: 4px;">Order #{{ order.order_id }} • {{ order.created_at|date:"M d, Y" }}</div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-8">
+                        <i class="fas fa-shopping-bag text-4xl text-gray-300 mb-4"></i>
+                        <p class="text-gray-500">You haven't placed any orders yet</p>
+                        <a href="{% url 'shop' %}" class="text-blue-600 hover:text-blue-800">Start Shopping</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+        <!-- Wishlist Section -->
+        <div id="wishlist-section" class="section" style="display:none;">
+            <div class="content-header">
+                <h1>Wishlist</h1>
+                <p>Items you've saved for later</p>
+            </div>
+
+            <div class="wishlist-grid">
+                {% for product in wishlist_products %}
+                    <div class="wishlist-item">
+                        <div class="wishlist-image">
+                            {% if product.image %}
+                                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover rounded-lg">
+                            {% elif product.productimage_set.exists %}
+                                {% for img in product.productimage_set.all %}
+                                    {% if forloop.first %}
+                                        <img src="{{ img.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover rounded-lg">
+                                    {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                <img src="/static/images/default-product.png" alt="{{ product.name }}" class="w-full h-full object-cover rounded-lg">
+                            {% endif %}
+                        </div>
+                        <div class="wishlist-info">
+                            <div class="wishlist-name">{{ product.name }}</div>
+                            <div class="wishlist-price">₹{{ product.price }}</div>
+                            <button class="remove-btn" onclick="removeFromWishlist('{{ product.id }}')">REMOVE</button>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-8">
+                        <i class="fas fa-heart text-4xl text-gray-300 mb-4"></i>
+                        <p class="text-gray-500">Your wishlist is empty</p>
+                        <a href="{% url 'shop' %}" class="text-blue-600 hover:text-blue-800">Start Shopping</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+        <!-- Settings Section -->
+        <div id="settings-section" class="section" style="display:none;">
+            <div class="content-header">
+                <h1>Settings</h1>
+                <p>Manage your account settings and preferences</p>
+            </div>
+
+            <div class="profile-card">
+                <div class="info-row">
+                    <div class="info-label">Email Notifications</div>
+                    <div class="info-value">
+                        <label style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" checked>
+                            <span>Receive order updates and newsletters</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">SMS Notifications</div>
+                    <div class="info-value">
+                        <label style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox">
+                            <span>Get order updates via SMS</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Language</div>
+                    <div class="info-value">
+                        <select style="padding: 8px; border: 1px solid #e0e0e0; border-radius: 4px;">
+                            <option>English</option>
+                            <option>Hindi</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Password</div>
+                    <div class="info-value">
+                        <a href="{% url 'change_password' %}" class="edit-btn" style="text-decoration: none; display: inline-block;">
+                            Change Password
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Myntra-style Profile Dashboard */
+.myntra-dashboard {
+    background: #f5f5f5;
+    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+.myntra-container {
+    display: flex;
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    min-height: 100vh;
+}
+
+.myntra-sidebar {
+    width: 250px;
+    background: white;
+    border-right: 1px solid #e0e0e0;
+    padding: 20px 0;
+    position: fixed;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.sidebar-header {
+    padding: 0 20px 20px;
+    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 20px;
+}
+
+.sidebar-header h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #282c3f;
+    margin: 0;
+}
+
+.sidebar-header p {
+    color: #6c757d;
+    font-size: 14px;
+    margin: 4px 0 0 0;
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: #535665;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    font-size: 14px;
+    font-weight: 400;
+}
+
+.sidebar-item:hover {
+    background: #f5f5f5;
+    color: #282c3f;
+}
+
+.sidebar-item.active {
+    background: #ff3e6c;
+    color: white;
+}
+
+.sidebar-icon {
+    margin-right: 12px;
+    font-size: 16px;
+    width: 20px;
+    text-align: center;
+}
+
+/* Main Content */
+.myntra-content {
+    flex: 1;
+    margin-left: 250px;
+    padding: 20px;
+}
+
+.content-header {
+    margin-bottom: 30px;
+}
+
+.content-header h1 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #282c3f;
+    margin: 0 0 8px;
+}
+
+.content-header p {
+    color: #6c757d;
+    font-size: 16px;
+}
+
+.section {
+    display: none;
+}
+
+.profile-card {
+    background: white;
+    border-radius: 8px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.profile-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: #6c757d;
+    margin-right: 16px;
+}
+
+.profile-info h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #282c3f;
+    margin: 0;
+}
+
+.profile-info p {
+    color: #6c757d;
+    font-size: 14px;
+    margin: 4px 0 0 0;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f1f3f4;
+}
+
+.info-label {
+    font-size: 14px;
+    color: #6c757d;
+    font-weight: 500;
+    min-width: 120px;
+}
+
+.info-value {
+    font-size: 14px;
+    color: #282c3f;
+    font-weight: 400;
+    text-align: right;
+}
+
+.edit-btn {
+    color: #007bff;
+    text-decoration: none;
+    padding: 6px 12px;
+    border: 1px solid #007bff;
+    border-radius: 4px;
+    font-size: 12px;
+    transition: all 0.2s ease;
+}
+
+.edit-btn:hover {
+    background: #007bff;
+    color: white;
+}
+
+/* Wishlist Styles */
+.wishlist-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.wishlist-item {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.2s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.wishlist-item:hover {
+    transform: translateY(-2px);
+}
+
+.wishlist-image {
+    width: 100%;
+    height: 250px;
+    background: #f0f0f0;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: #6c757d;
+}
+
+.wishlist-image img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: cover;
+}
+
+.wishlist-info {
+    padding: 12px;
+}
+
+.wishlist-name {
+    font-weight: 500;
+    color: #282c3f;
+    margin-bottom: 4px;
+    line-height: 1.4;
+}
+
+.wishlist-price {
+    font-size: 16px;
+    font-weight: 600;
+    color: #282c3f;
+}
+
+.remove-btn {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.remove-btn:hover {
+    background: #c82333;
+}
+
+/* Orders Styles */
+.orders-grid {
+    display: grid;
+    gap: 16px;
+}
+
+.order-card {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+}
+
+.order-image {
+    width: 120px;
+    height: 120px;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: #6c757d;
+}
+
+.order-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.order-details {
+    padding: 16px;
+    flex: 1;
+}
+
+.order-name {
+    font-weight: 500;
+    color: #282c3f;
+    margin-bottom: 8px;
+    font-size: 16px;
+}
+
+.order-status {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.status-delivered {
+    background: #28a745;
+    color: white;
+}
+
+.status-pending {
+    background: #ffc107;
+    color: #212529;
+}
+
+.status-processing {
+    background: #17a2b8;
+    color: white;
+}
+
+.status-dispatched {
+    background: #6f42c1;
+    color: white;
+}
+
+.status-shipped {
+    background: #007bff;
+    color: white;
+}
+
+.status-cancelled {
+    background: #dc3545;
+    color: white;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .myntra-container {
+        flex-direction: column;
+    }
+    
+    .myntra-sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid #e0e0e0;
+    }
+    
+    .myntra-content {
+        margin-left: 0;
+        padding: 20px;
+    }
+    
+    .wishlist-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+    
+    .orders-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+{% block extra_js %}
+<script>
+function showSection(sectionId) {
+    // Hide all sections
+    document.querySelectorAll('.section').forEach(section => {
+        section.style.display = 'none';
+    });
+    
+    // Show selected section
+    const selectedSection = document.getElementById(sectionId);
+    if (selectedSection) {
+        selectedSection.style.display = 'block';
+    }
+    
+    // Update active tab
+    document.querySelectorAll('.sidebar-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    
+    const activeTab = document.querySelector(`[onclick*="${sectionId}"]`);
+    if (activeTab) {
+        activeTab.classList.add('active');
+    }
+}
+
+function removeFromWishlist(productId) {
+    if (confirm('Are you sure you want to remove this item from your wishlist?')) {
+        // Send AJAX request to remove from wishlist
+        fetch(`/wishlist/remove/${productId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Remove item from DOM
+                const item = event.target.closest('.wishlist-item');
+                item.remove();
+                
+                // Show success message
+                showToast('Item removed from wishlist');
+            } else {
+                alert('Error removing item from wishlist');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error removing item from wishlist');
+        });
+    }
+}
+
+function showToast(message) {
+    const toast = document.createElement('div');
+    toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+    toast.innerHTML = `<i class="fas fa-check-circle mr-2"></i>${message}`;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}
+
+// Auto-show first tab on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const activeTab = '{{ active_tab }}';
+    if (activeTab && activeTab !== 'profile') {
+        showSection(`${activeTab}-section`);
+    } else {
+        showSection('profile-section');
+    }
+});
+</script>
+{% endblock %}
+{% endblock content %}

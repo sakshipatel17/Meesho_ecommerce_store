@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="120" height="40" viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .meesho-text {
+      font-family: 'Arial', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      fill: #9F2089;
+    }
+  </style>
+  <defs>
+  </defs>
+  <text x="0" y="30" class="meesho-text">Meesho</text>
+</svg>

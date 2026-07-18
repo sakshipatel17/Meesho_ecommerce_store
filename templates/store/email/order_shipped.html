@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Shipped</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .header {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }
+        .content {
+            background: white;
+            padding: 30px;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .order-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #007bff;
+        }
+        .tracking-info {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .btn {
+            display: inline-block;
+            background: #007bff;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #666;
+            font-size: 14px;
+        }
+        .status-badge {
+            background: #007bff;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .timeline {
+            display: flex;
+            justify-content: space-between;
+            margin: 30px 0;
+            text-align: center;
+        }
+        .timeline-item {
+            flex: 1;
+            position: relative;
+        }
+        .timeline-item.completed {
+            color: #28a745;
+        }
+        .timeline-item.current {
+            color: #007bff;
+            font-weight: bold;
+        }
+        .timeline-item.pending {
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚚 Your Order Has Been Shipped!</h1>
+        <p>Great news, {{ customer_name }}! Your package is on its way.</p>
+    </div>
+    
+    <div class="content">
+        <h2>Order Details</h2>
+        <div class="order-info">
+            <p><strong>Order ID:</strong> #{{ order_id }}</p>
+            <p><strong>Status:</strong> <span class="status-badge">Shipped</span></p>
+            <p><strong>Tracking ID:</strong> {{ tracking_id }}</p>
+            <p><strong>Expected Delivery:</strong> 3-5 business days</p>
+            <p><strong>Date:</strong> {% now "j F Y, g:i a" %}</p>
+        </div>
+        
+        <div class="tracking-info">
+            <h3>📦 Tracking Information</h3>
+            <p><strong>Tracking ID:</strong> <code>{{ tracking_id }}</code></p>
+            <p><strong>Track Your Package:</strong> 
+                <a href="{{ site_url }}/orders/track/{{ tracking_id }}/" style="color: #007bff;">
+                    {{ site_url }}/orders/track/{{ tracking_id }}/
+                </a>
+            </p>
+            <p>You can track your package in real-time using the link above.</p>
+        </div>
+        
+        <h3>📊 Order Progress</h3>
+        <div class="timeline">
+            <div class="timeline-item completed">
+                <div>✅</div>
+                <div>Order Placed</div>
+            </div>
+            <div class="timeline-item completed">
+                <div>✅</div>
+                <div>Confirmed</div>
+            </div>
+            <div class="timeline-item completed">
+                <div>✅</div>
+                <div>Dispatched</div>
+            </div>
+            <div class="timeline-item current">
+                <div>🚚</div>
+                <div>Shipped</div>
+            </div>
+            <div class="timeline-item pending">
+                <div>🏠</div>
+                <div>Delivered</div>
+            </div>
+        </div>
+        
+        <h3>What to Expect Next?</h3>
+        <ul>
+            <li>📱 You'll receive SMS updates on delivery day</li>
+            <li>📧 Another email when order is out for delivery</li>
+            <li>📦 Package will be delivered to your registered address</li>
+            <li>⭐ Please rate your experience after delivery</li>
+        </ul>
+        
+        <div style="text-align: center;">
+            <a href="{{ site_url }}/orders/track/{{ tracking_id }}/" class="btn">Track Your Package</a>
+        </div>
+        
+        <h3>Need Help?</h3>
+        <p>If you have any questions about your delivery:</p>
+        <ul>
+            <li>📧 Email: support@kostaa.com</li>
+            <li>📞 Call: Our customer service helpline</li>
+            <li>💬 Live chat available on our website</li>
+        </ul>
+    </div>
+    
+    <div class="footer">
+        <p>© 2024 Kostaa Store. All rights reserved.</p>
+        <p>You're receiving this email because your order has been shipped.</p>
+    </div>
+</body>
+</html>

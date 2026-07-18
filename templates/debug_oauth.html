@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Google OAuth Debug</title>
+</head>
+<body>
+    <h1>Google OAuth Debug Information</h1>
+    
+    <h2>Current Configuration:</h2>
+    <ul>
+        <li><strong>Client ID:</strong> </li>
+        <li><strong>Client Secret:</strong></li>
+        <li><strong>Expected Callback URL:</strong> http://127.0.0.1:8000/social/google/login/callback/</li>
+    </ul>
+    
+    <h2>Google Cloud Console Setup:</h2>
+    <p>Go to <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a></p>
+    
+    <ol>
+        <li>Select your project</li>
+        <li>Go to "APIs & Services" → "Credentials"</li>
+        <li>Click on your OAuth 2.0 Client ID</li>
+        <li>In "Authorized redirect URIs", add EXACTLY:
+            <br><code>http://127.0.0.1:8000/social/google/login/callback/</code>
+        </li>
+        <li>Save changes</li>
+        <li>Wait 2-3 minutes for changes to propagate</li>
+    </ol>
+    
+    <h2>Required APIs:</h2>
+    <p>Make sure these APIs are enabled in Google Cloud Console:</p>
+    <ul>
+        <li>Google+ API (or People API)</li>
+        <li>OAuth 2.0 API</li>
+    </ul>
+    
+    <h2>Test Button:</h2>
+    <a href="/social/google/login/" style="background: #4285f4; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">
+        Test Google Login
+    </a>
+    
+    <h2>Common Errors:</h2>
+    <ul>
+        <li><strong>redirect_uri_mismatch:</strong> Wrong redirect URI in Google Console</li>
+        <li><strong>invalid_client:</strong> Wrong Client ID/Secret</li>
+        <li><strong>access_denied:</strong> Required APIs not enabled</li>
+        <li><strong>internal_server_error:</strong> Django configuration issue</li>
+    </ul>
+</body>
+</html>
