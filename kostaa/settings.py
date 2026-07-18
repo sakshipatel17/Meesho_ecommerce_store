@@ -140,15 +140,25 @@ def get_mongo_uri():
     return ''
 
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'djongo',
-        'NAME': config('DB_NAME', default='ecommerce'),
-        'CLIENT': {
-            'host': get_mongo_uri(),
-        },
+# Use SQLite if MongoDB is not configured (fallback for Railway deployment)
+mongo_uri = get_mongo_uri()
+if mongo_uri:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'djongo',
+            'NAME': config('DB_NAME', default='ecommerce'),
+            'CLIENT': {
+                'host': mongo_uri,
+            },
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 
